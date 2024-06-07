@@ -64,7 +64,7 @@ price_predicted = k_zx @ alpha
 
 # Create result series
 result = pd.DataFrame({
-    "dt": data["dt"],
+    "dt": data["dt"].reset_index(drop=True),
     "price_prediction": pd.Series(price_predicted.reshape(-1))
 })
 
