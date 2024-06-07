@@ -71,25 +71,26 @@ std_prediction = np.sqrt(np.diagonal(cov_prediction))
 
 # Create result series
 result = pd.DataFrame({
+    "Date": data["Date"].reset_index(drop=True),
     "dt": data["dt"].reset_index(drop=True),
     "price_prediction": pd.Series(price_predicted.reshape(-1)),
     "std": pd.Series(std_prediction)
 })
 
-plt.plot(train_data["dt"], train_data[target_price], 'k+')
-plt.plot(test_data["dt"], test_data[target_price], 'b.')
-plt.plot(result["dt"], result["price_prediction"], 'g')
-plt.plot(result["dt"], result["price_prediction"] + result["std"], 'r--')
-plt.plot(result["dt"], result["price_prediction"] - result["std"], 'r--')
+plt.plot(pd.to_datetime(train_data["Date"]), train_data[target_price], 'k+')
+plt.plot(pd.to_datetime(test_data["Date"]), test_data[target_price], 'b.')
+plt.plot(pd.to_datetime(result["Date"]), result["price_prediction"], 'g')
+plt.plot(pd.to_datetime(result["Date"]), result["price_prediction"] + result["std"], 'r--')
+plt.plot(pd.to_datetime(result["Date"]), result["price_prediction"] - result["std"], 'r--')
 if plot_shading_mode == "2-sigma":
     upper_bound = result["price_prediction"] + 2.0 * result["std"]
     lower_bound = result["price_prediction"] - 2.0 * result["std"]
-    plt.fill_between(result["dt"], lower_bound, upper_bound, where=(upper_bound >= lower_bound), interpolate=True,
+    plt.fill_between(pd.to_datetime(result["Date"]), lower_bound, upper_bound, where=(upper_bound >= lower_bound), interpolate=True,
                      color='gray', alpha=0.5)
 else:
     upper_bound = result["price_prediction"] + 2.0 * result["std"]
     lower_bound = result["price_prediction"] - 2.0 * result["std"]
-    plt.fill_between(result["dt"], lower_bound, upper_bound, where=(upper_bound >= lower_bound), interpolate=True,
+    plt.fill_between(pd.to_datetime(result["Date"]), lower_bound, upper_bound, where=(upper_bound >= lower_bound), interpolate=True,
                      color='gray', alpha=0.5)
 
 plt.show()
