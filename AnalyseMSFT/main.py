@@ -16,9 +16,11 @@ def select_data_time(data_full, start_date, end_date):
 
 # Parameters
 test_data_size = 0.5
-rbf_gamma = 0.005
-sigma_price = 0.01
+rbf_gamma = 0.01
+rbf_amp = 15.0
+sigma_price = 0.2  # Make sigma_price a function of time?
 target_price = "High"
+plot_shading_mode = "2-sigma"
 
 # Load data
 raw_data = pd.read_csv("../DataSets/MSFT.csv")
@@ -48,7 +50,7 @@ test_data = test_data.sort_index()
 # test_data = select_data_time(test_data, "2000-01-01", "2005-12-31")
 
 # Compute kernel for data points => K_xx
-k_xx = rbf_kernel(train_data['dt'].values.reshape(-1, 1), train_data['dt'].values.reshape(-1, 1), gamma=rbf_gamma)
+k_xx = rbf_amp*rbf_kernel(train_data['dt'].values.reshape(-1, 1), train_data['dt'].values.reshape(-1, 1), gamma=rbf_gamma)
 # Construct predictive covariance
 ## Compute Cholesky decomposition
 L = np.linalg.cholesky(k_xx + sigma_price ** 2 * np.eye(k_xx.shape[0]))
@@ -59,18 +61,37 @@ predictive_cov = np.linalg.inv(L.T).dot(np.linalg.inv(L))
 alpha = predictive_cov @ train_data[target_price].values.reshape(-1, 1)
 
 # predict for all data
-k_zx = rbf_kernel(data['dt'].values.reshape(-1, 1), train_data['dt'].values.reshape(-1, 1), gamma=rbf_gamma)
+k_zx = rbf_amp*rbf_kernel(data['dt'].values.reshape(-1, 1), train_data['dt'].values.reshape(-1, 1), gamma=rbf_gamma)
+k_zz = rbf_amp*rbf_kernel(data['dt'].values.reshape(-1, 1), data['dt'].values.reshape(-1, 1), gamma=rbf_gamma)
+## prediction
 price_predicted = k_zx @ alpha
+## stdev of prediction
+cov_prediction = (k_zz + sigma_price ** 2 * np.eye(k_zz.shape[0])) - k_zx @ predictive_cov @ k_zx.T
+std_prediction = np.sqrt(np.diagonal(cov_prediction))
 
 # Create result series
 result = pd.DataFrame({
     "dt": data["dt"].reset_index(drop=True),
-    "price_prediction": pd.Series(price_predicted.reshape(-1))
+    "price_prediction": pd.Series(price_predicted.reshape(-1)),
+    "std": pd.Series(std_prediction)
 })
 
-plt.plot(train_data["dt"], train_data[target_price], '.')
-plt.plot(test_data["dt"], test_data[target_price], 'r.')
+plt.plot(train_data["dt"], train_data[target_price], 'k+')
+plt.plot(test_data["dt"], test_data[target_price], 'b.')
 plt.plot(result["dt"], result["price_prediction"], 'g')
+plt.plot(result["dt"], result["price_prediction"] + result["std"], 'r--')
+plt.plot(result["dt"], result["price_prediction"] - result["std"], 'r--')
+if plot_shading_mode == "2-sigma":
+    upper_bound = result["price_prediction"] + 2.0 * result["std"]
+    lower_bound = result["price_prediction"] - 2.0 * result["std"]
+    plt.fill_between(result["dt"], lower_bound, upper_bound, where=(upper_bound >= lower_bound), interpolate=True,
+                     color='gray', alpha=0.5)
+else:
+    upper_bound = result["price_prediction"] + 2.0 * result["std"]
+    lower_bound = result["price_prediction"] - 2.0 * result["std"]
+    plt.fill_between(result["dt"], lower_bound, upper_bound, where=(upper_bound >= lower_bound), interpolate=True,
+                     color='gray', alpha=0.5)
+
 plt.show()
 
 # Split into train and test data
