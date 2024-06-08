@@ -1,50 +1,31 @@
-from utils import load_msft, select_data_time, compute_return
-from analyses import fit_gp_standard
+from dataclasses import dataclass
+
+from utils import load_msft
+from analyses import fit_gp_time_period_train_test_split, gp_prediction_vs_martingale
+
 
 # Parameters
-test_data_size = 0.5
-rbf_length_scale = 1.0
-rbf_output_scale = 10.0
-sigma_price = 0.2  # Make sigma_price a function of time?
-sigma_return = 5.0
-target_price = "High"
-use_return = True
-plot_shading_mode = "2-sigma"
-start_date = "1990-01-01"
-end_date = "1990-12-31"
+@dataclass
+class parameters:
+    test_data_size: float = 0.5
+    rbf_length_scale: float = 5.0
+    rbf_output_scale: float = 20.0
+    sigma_price: float = 0.1  # Make sigma_price a function of time?
+    sigma_return: float = 1.0
+    target_price: str = "High"
+    use_return: bool = True
+    plot_shading_mode: str = "2-sigma"
+    start_date: str = "1990-01-01"
+    end_date: str = "1995-12-31"
+    num_iter_error_stat: int = 1000
+    num_data_points_gp_fit: int = 10
+    histogram_num_bins: int = 100
+
 
 # Load dataset
 raw_data = load_msft()
 
-# In case the target quantity is the Return, compute it
-if use_return:
-    raw_data = compute_return(raw_data, target_price)
-
-# Split into train- and test-data
-data = select_data_time(raw_data, start_date, end_date)
-
-if not use_return:
-    # Remove unnecessary colums from data
-    data = data[["Date", "dt", target_price]]
-    # Fit gp
-    fit_gp_standard(data,
-                    target_price,
-                    test_data_size,
-                    rbf_length_scale,
-                    rbf_output_scale,
-                    sigma_price,
-                    plot_shading_mode)
-
-else:
-    # Remove unnecessary colums from data
-    data = data[["Date", "dt", "Return"]]
-    # Fit gp
-    fit_gp_standard(data,
-                    "Return",
-                    test_data_size,
-                    rbf_length_scale,
-                    rbf_output_scale,
-                    sigma_return,
-                    plot_shading_mode)
+#fit_gp_time_period_train_test_split(raw_data, parameters)
+gp_prediction_vs_martingale(raw_data, parameters)
 
 pass

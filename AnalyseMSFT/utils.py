@@ -23,6 +23,9 @@ def select_data_time(data_full, start_date, end_date):
     return data_subset
 
 
+def select_data_idx(data_full,idx_end,num_data_points):
+    pass
+
 def train_test_split(data, test_data_size):
     train_data, test_data = train_test_split_sklearn(data, test_size=test_data_size, random_state=42)
     train_data = train_data.sort_index()
