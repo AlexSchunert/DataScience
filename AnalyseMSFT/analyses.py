@@ -87,17 +87,19 @@ def gp_prediction_vs_martingale(raw_data, parameters):
             # Remove unnecessary colums from data
             train_data = train_data[["Date", "dt", parameters.target_price]]
             test_data = test_data[["Date", "dt", parameters.target_price]]
+            result_label = parameters.target_price
             # Fit gp
             result = gp_process(test_data,
                                 train_data,
                                 parameters.target_price,
+                                result_label,
                                 parameters.sigma_price,
                                 parameters.rbf_length_scale,
                                 parameters.rbf_output_scale)
 
             # calculate prediction and store
-            prediction_error[i] = result[parameters.target_price].values[0] - test_data[parameters.target_price].values[
-                0]
+            prediction_error[i] = result[result_label].values[0] - \
+                                  test_data[parameters.target_price].values[0]
             martingale_error[i] = train_data[parameters.target_price].values[-1] - \
                                   test_data[parameters.target_price].values[0]
 
@@ -105,16 +107,18 @@ def gp_prediction_vs_martingale(raw_data, parameters):
             # Remove unnecessary colums from data
             train_data = train_data[["Date", "dt", "Return"]]
             test_data = test_data[["Date", "dt", "Return"]]
+            result_label = "Return"
 
             result = gp_process(test_data,
                                 train_data,
                                 "Return",
+                                result_label,
                                 parameters.sigma_return,
                                 parameters.rbf_length_scale,
                                 parameters.rbf_output_scale)
 
             # calculate prediction and store
-            prediction_error[i] = result["Return"].values[0] - test_data["Return"].values[0]
+            prediction_error[i] = result[result_label].values[0] - test_data["Return"].values[0]
             martingale_error[i] = -test_data["Return"].values[0]
 
     plot_prediction_error_statistic(prediction_error,
