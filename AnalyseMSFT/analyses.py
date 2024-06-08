@@ -2,30 +2,9 @@ import numpy as np
 from random import randint
 
 from utils import train_test_split, compute_kernel_matrices, construct_prediction_result, compute_return, \
-    select_data_time, select_data_idx
+    select_data_time
 from plot_tools import plot_prediction_result, plot_prediction_error_statistic
-from gaussian_process import condition_gpr, predict_gpr
-
-
-def fit_gp_standard(data,
-                    target_price,
-                    test_data_size,
-                    rbf_length_scale,
-                    rbf_output_scale,
-                    sigma_price,
-                    plot_shading_mode):
-    # split into training and test data
-    train_data, test_data = train_test_split(data, test_data_size)
-    # Compute kernel matrices
-    k_xx, k_zx, k_zz = compute_kernel_matrices(data, train_data, rbf_length_scale, rbf_output_scale, "rbf")
-    # condition on data
-    alpha, predictive_cov = condition_gpr(train_data, k_xx, target_price, sigma_price)
-    # predict for all data
-    price_predicted, std_prediction = predict_gpr(alpha, k_zx, k_zz, predictive_cov)
-    # create result
-    result = construct_prediction_result(data, price_predicted, std_prediction)
-    # plot result
-    plot_prediction_result(train_data, test_data, result, target_price, plot_shading_mode)
+from gaussian_process import gp_process
 
 
 def fit_gp_time_period_train_test_split(raw_data, parameters):
@@ -33,49 +12,52 @@ def fit_gp_time_period_train_test_split(raw_data, parameters):
     if parameters.use_return:
         raw_data = compute_return(raw_data, parameters.target_price)
 
-    # Split into train- and test-data
+    # Get selected timeframe
     data = select_data_time(raw_data, parameters.start_date, parameters.end_date)
+    # split into training and test data
+    train_data, test_data = train_test_split(data, parameters.test_data_size)
 
     if not parameters.use_return:
         # Remove unnecessary colums from data
         data = data[["Date", "dt", parameters.target_price]]
+        result_label = parameters.target_price
         # Fit gp
-        fit_gp_standard(data,
-                        parameters.target_price,
-                        parameters.test_data_size,
-                        parameters.rbf_length_scale,
-                        parameters.rbf_output_scale,
-                        parameters.sigma_price,
-                        parameters.plot_shading_mode)
+        result = gp_process(data,
+                            train_data,
+                            parameters.target_price,
+                            result_label,
+                            parameters.sigma_price,
+                            parameters.rbf_length_scale,
+                            parameters.rbf_output_scale)
+
+        # plot result
+        plot_prediction_result(train_data,
+                               test_data,
+                               result,
+                               parameters.target_price,
+                               result_idx=result_label,
+                               plot_shading_mode=parameters.plot_shading_mode)
 
     else:
         # Remove unnecessary colums from data
         data = data[["Date", "dt", "Return"]]
+        result_label = "Return"
         # Fit gp
-        fit_gp_standard(data,
-                        "Return",
-                        parameters.test_data_size,
-                        parameters.rbf_length_scale,
-                        parameters.rbf_output_scale,
-                        parameters.sigma_return,
-                        parameters.plot_shading_mode)
+        result = gp_process(data,
+                            train_data,
+                            "Return",
+                            result_label,
+                            parameters.sigma_price,
+                            parameters.rbf_length_scale,
+                            parameters.rbf_output_scale)
 
-
-def gp_predict(test_data, train_data, target_quantity, sigma_measurement, rbf_length_scale, rbf_output_scale):
-    # Fit gp
-    k_xx, k_zx, k_zz = compute_kernel_matrices(test_data,
-                                               train_data,
-                                               rbf_length_scale,
-                                               rbf_output_scale,
-                                               "rbf")
-    # condition on data
-    alpha, predictive_cov = condition_gpr(train_data, k_xx, target_quantity, sigma_measurement)
-    # predict for all data
-    price_predicted, std_prediction = predict_gpr(alpha, k_zx, k_zz, predictive_cov)
-    # create result
-    result = construct_prediction_result(test_data, price_predicted, std_prediction)
-
-    return result
+        # plot result
+        plot_prediction_result(train_data,
+                               test_data,
+                               result,
+                               "Return",
+                               result_idx=result_label,
+                               plot_shading_mode=parameters.plot_shading_mode)
 
 
 def gp_prediction_vs_martingale(raw_data, parameters):
@@ -106,7 +88,7 @@ def gp_prediction_vs_martingale(raw_data, parameters):
             train_data = train_data[["Date", "dt", parameters.target_price]]
             test_data = test_data[["Date", "dt", parameters.target_price]]
             # Fit gp
-            result = gp_predict(test_data,
+            result = gp_process(test_data,
                                 train_data,
                                 parameters.target_price,
                                 parameters.sigma_price,
@@ -114,7 +96,8 @@ def gp_prediction_vs_martingale(raw_data, parameters):
                                 parameters.rbf_output_scale)
 
             # calculate prediction and store
-            prediction_error[i] = result["price_prediction"].values[0] - test_data[parameters.target_price].values[0]
+            prediction_error[i] = result[parameters.target_price].values[0] - test_data[parameters.target_price].values[
+                0]
             martingale_error[i] = train_data[parameters.target_price].values[-1] - \
                                   test_data[parameters.target_price].values[0]
 
@@ -123,7 +106,7 @@ def gp_prediction_vs_martingale(raw_data, parameters):
             train_data = train_data[["Date", "dt", "Return"]]
             test_data = test_data[["Date", "dt", "Return"]]
 
-            result = gp_predict(test_data,
+            result = gp_process(test_data,
                                 train_data,
                                 "Return",
                                 parameters.sigma_return,
@@ -131,7 +114,7 @@ def gp_prediction_vs_martingale(raw_data, parameters):
                                 parameters.rbf_output_scale)
 
             # calculate prediction and store
-            prediction_error[i] = result["price_prediction"].values[0] - test_data["Return"].values[0]
+            prediction_error[i] = result["Return"].values[0] - test_data["Return"].values[0]
             martingale_error[i] = -test_data["Return"].values[0]
 
     plot_prediction_error_statistic(prediction_error,
