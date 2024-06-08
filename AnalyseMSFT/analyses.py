@@ -1,6 +1,6 @@
 import numpy as np
 from random import randint
-
+import pandas as pd
 from utils import train_test_split, compute_kernel_matrices, construct_prediction_result, compute_return, \
     select_data_time
 from plot_tools import plot_prediction_result, plot_prediction_error_statistic
@@ -60,11 +60,19 @@ def fit_gp_time_period_train_test_split(raw_data, parameters):
                                plot_shading_mode=parameters.plot_shading_mode)
 
 
-def gp_prediction_vs_martingale(raw_data, parameters):
+def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
     # In case the target quantity is the Return, compute it
     if parameters.use_return:
         raw_data = compute_return(raw_data, parameters.target_price)
         raw_data = raw_data.reset_index(drop=True)
+        target_quantity_idx = "Return"
+        result_label = "Return"
+        sigma_target_quantity = parameters.sigma_return
+    else:
+        target_quantity_idx = parameters.target_price
+        result_label = parameters.target_price
+        sigma_target_quantity = parameters.sigma_price
+
 
     # create output arrays
     prediction_error = np.zeros(parameters.num_iter_error_stat, )
@@ -83,43 +91,42 @@ def gp_prediction_vs_martingale(raw_data, parameters):
         idx_end = randint(min_idx_end, max_idx_end)
         train_data = raw_data.loc[idx_end - parameters.num_data_points_gp_fit + 1:idx_end]
         test_data = raw_data.loc[[idx_end + 1]]
-        if not parameters.use_return:
-            # Remove unnecessary colums from data
-            train_data = train_data[["Date", "dt", parameters.target_price]]
-            test_data = test_data[["Date", "dt", parameters.target_price]]
-            result_label = parameters.target_price
-            # Fit gp
-            result = gp_process(test_data,
-                                train_data,
-                                parameters.target_price,
-                                result_label,
-                                parameters.sigma_price,
-                                parameters.rbf_length_scale,
-                                parameters.rbf_output_scale)
 
-            # calculate prediction and store
-            prediction_error[i] = result[result_label].values[0] - \
-                                  test_data[parameters.target_price].values[0]
-            martingale_error[i] = train_data[parameters.target_price].values[-1] - \
-                                  test_data[parameters.target_price].values[0]
+        train_data = train_data[["Date", "dt", target_quantity_idx]]
+        test_data = test_data[["Date", "dt", target_quantity_idx]]
 
+        if plot_iterations:
+            test_data = pd.concat([test_data, train_data]).sort_index()
+
+        # Fit gp
+        result = gp_process(test_data,
+                            train_data,
+                            target_quantity_idx,
+                            result_label,
+                            sigma_target_quantity,
+                            parameters.rbf_length_scale,
+                            parameters.rbf_output_scale)
+
+        # calculate prediction and store
+        if parameters.use_return:
+            prediction_error[i] = result[result_label].values[-1] - \
+                                  test_data[target_quantity_idx].values[-1]
+            martingale_error[i] = -test_data[target_quantity_idx].values[-1]
         else:
-            # Remove unnecessary colums from data
-            train_data = train_data[["Date", "dt", "Return"]]
-            test_data = test_data[["Date", "dt", "Return"]]
-            result_label = "Return"
+            prediction_error[i] = result[result_label].values[-1] - \
+                                  test_data[target_quantity_idx].values[-1]
+            martingale_error[i] = train_data[target_quantity_idx].values[-1] - \
+                                  test_data[target_quantity_idx].values[-1]
 
-            result = gp_process(test_data,
-                                train_data,
-                                "Return",
-                                result_label,
-                                parameters.sigma_return,
-                                parameters.rbf_length_scale,
-                                parameters.rbf_output_scale)
+        if plot_iterations:
+            # plot result
+            plot_prediction_result(train_data,
+                                   test_data,
+                                   result,
+                                   target_quantity_idx,
+                                   result_idx=result_label,
+                                   plot_shading_mode=parameters.plot_shading_mode)
 
-            # calculate prediction and store
-            prediction_error[i] = result[result_label].values[0] - test_data["Return"].values[0]
-            martingale_error[i] = -test_data["Return"].values[0]
 
     plot_prediction_error_statistic(prediction_error,
                                     reference_error=martingale_error,
