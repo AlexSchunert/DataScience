@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split as train_test_split_sklearn
 from kernel_functions import rbf_kernel
 
 
-def load_msft():
+def load_msft(parameters):
     # Load data
     raw_data = pd.read_csv("../DataSets/MSFT.csv")
     # Extract timestamps
@@ -13,6 +13,15 @@ def load_msft():
     delta_time = (time - time[0]).dt.days
     # Add column delta_time to raw_data
     raw_data["dt"] = delta_time
+
+    # Compute 1-d return if necessary
+    if parameters.use_return:
+        raw_data = compute_return(raw_data, parameters.target_label)
+        raw_data = raw_data.reset_index(drop=True)
+        parameters.target_label = "Return"
+        parameters.sigma_used = parameters.sigma_return
+    else:
+        parameters.sigma_used = parameters.sigma_price
 
     return raw_data
 
