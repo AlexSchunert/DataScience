@@ -134,4 +134,6 @@ def gp_prediction_vs_martingale(raw_data, parameters):
             prediction_error[i] = result["price_prediction"].values[0] - test_data["Return"].values[0]
             martingale_error[i] = -test_data["Return"].values[0]
 
-    plot_prediction_error_statistic(prediction_error, reference_error=martingale_error)
+    plot_prediction_error_statistic(prediction_error,
+                                    reference_error=martingale_error,
+                                    num_bins=parameters.histogram_num_bins)
