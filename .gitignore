@@ -3,3 +3,6 @@ venv/
 
 # Ignore PyCharm/IntelliJ IDEA project settings directory
 .idea/
+
+# More folders to ignore
+AnalyseMSFT/__pycache__/*
