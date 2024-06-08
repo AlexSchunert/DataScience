@@ -51,3 +51,9 @@ def construct_prediction_result(data, price_predicted, std_prediction):
         "std": pd.Series(std_prediction)
     })
     return result
+
+
+def compute_return(data, target_price):
+
+    data["Return"] = 100.0 * data[target_price].diff()/data[target_price].shift(1)
+    return data.dropna(subset=["Return"])
