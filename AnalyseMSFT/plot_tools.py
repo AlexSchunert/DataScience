@@ -48,23 +48,21 @@ def plot_prediction_result(train_data,
 
 def plot_prediction_error_statistic(prediction_error, reference_error=None, num_bins=50):
 
-    # Compute mean and std for error vecs
+    # Compute mean and std for error vecs, create label, plot
     mean_prediction_error = np.mean(prediction_error)
     std_prediction_error = np.std(prediction_error)
     label_prediction_error = \
         "Prediction error, m: " + str(round(mean_prediction_error, 2)) + ", s: " + str(round(std_prediction_error, 2))
-
-    if reference_error is not None:
-        mean_reference_error = np.mean(reference_error)
-        std_reference_error = np.std(reference_error)
-        label_reference_error = \
-            "Reference error, m: " + str(round(mean_reference_error, 2)) + ", s: " + str(round(std_reference_error, 2))
 
     plt.figure()
     plt.hist(prediction_error, bins=num_bins, color="green", histtype="bar", alpha=0.5, rwidth=0.8, density=True,
              label=label_prediction_error)
 
     if reference_error is not None:
+        mean_reference_error = np.mean(reference_error)
+        std_reference_error = np.std(reference_error)
+        label_reference_error = \
+            "Reference error, m: " + str(round(mean_reference_error, 2)) + ", s: " + str(round(std_reference_error, 2))
         plt.hist(reference_error, bins=num_bins, color="gray", histtype="bar", alpha=0.5, rwidth=0.8, density=True,
                  label=label_reference_error)
 
