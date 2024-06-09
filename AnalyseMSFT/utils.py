@@ -27,6 +27,7 @@ def load_msft(parameters):
 
 
 def select_data_time(data_full, start_date, end_date, date_idx="Date"):
+
     idx = (data_full[date_idx] >= start_date) & (data_full[date_idx] <= end_date)
     data_subset = data_full[idx]
     return data_subset

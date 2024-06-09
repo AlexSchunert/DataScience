@@ -5,6 +5,15 @@ from utils import compute_kernel_matrices, construct_prediction_result
 
 
 def condition_gpr(train_data, k_xx, col_id, sigma_data):
+    """
+    Description of function
+    
+    :param param1: Description of param1
+    :type param1: Type of param1
+    
+    :return: Description of return value
+    :rtype: Type of return value
+    """
     # Compute kernel for data points => K_xx
 
     # Construct predictive covariance

@@ -6,3 +6,12 @@ venv/
 
 # More folders to ignore
 AnalyseMSFT/__pycache__/*
+AnalyseMSFT/docs/build/
+AnalyseMSFT/docs/source/__pycache__/
+AnalyseMSFT/docs/source/_static/
+AnalyseMSFT/docs/source/_templates/
+
+
+# Exclude file types
+*/*.exe
+*/*.pyc
