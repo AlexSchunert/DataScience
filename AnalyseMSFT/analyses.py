@@ -16,7 +16,7 @@ def fit_gp(data,
            end_date=None,
            prediction_horizon=None,
            prediction_horizon_mode="days",
-           predict_only=False,
+           prediction_mode="all",
            plot_results=True):
 
     # Check inputs
@@ -44,8 +44,12 @@ def fit_gp(data,
         data_timeframe_test = pd.DataFrame(columns=data_timeframe_train.columns)
 
     # Construct prediction data
-    if predict_only:
+    if prediction_mode == "all":
+        data_timeframe_test = data_timeframe
+    elif prediction_mode == "predict_only":
         data_timeframe_test = pd.DataFrame(columns=data_timeframe_train.columns)
+    else:
+        data_timeframe_test = data_timeframe
 
     if prediction_horizon_mode == "index":
         idx_date_larger = np.where(data["Date"] > end_date)
@@ -66,7 +70,7 @@ def fit_gp(data,
             "%Y-%m-%d")
         data_timeframe_predict = select_data_time(data, start_date_prediction, end_date_prediction)
 
-    if data_timeframe_test.empty == False or data_timeframe_predict.empty == False:
+    if data_timeframe_test.empty is False or data_timeframe_predict.empty is False:
         data_timeframe_test = pd.concat([df for df in [data_timeframe_test, data_timeframe_predict] if not df.empty]).\
             sort_index()
     else:
@@ -93,6 +97,7 @@ def fit_gp(data,
 
 def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
     # In case the target quantity is the Return, compute it
+    """
     if parameters.use_return:
         raw_data = compute_return(raw_data, parameters.target_price)
         raw_data = raw_data.reset_index(drop=True)
@@ -103,6 +108,10 @@ def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
         target_quantity_idx = parameters.target_price
         result_label = parameters.target_price
         sigma_target_quantity = parameters.sigma_price
+    """
+    # Set name of result and target quantity index
+    result_label = parameters.target_label
+    target_quantity_idx = parameters.target_label
 
     # create output arrays
     prediction_error = np.zeros(parameters.num_iter_error_stat, )
@@ -119,12 +128,40 @@ def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
 
         # Select data from randomly selected timeframe
         idx_end = randint(min_idx_end, max_idx_end)
-        train_data = raw_data.loc[idx_end - parameters.num_data_points_gp_fit + 1:idx_end]
-        test_data = raw_data.loc[[idx_end + 1]]
+        # Determine start and end date
+        start_date = raw_data.loc[idx_end-parameters.num_data_points_gp_fit + 1]["Date"]
+        end_date = raw_data.loc[idx_end]["Date"]
 
-        train_data = train_data[["Date", "dt", target_quantity_idx]]
-        test_data = test_data[["Date", "dt", target_quantity_idx]]
+        if plot_iterations:
+            prediction_mode = "all"
 
+        else:
+            prediction_mode = "predict_only"
+
+        result = fit_gp(raw_data,
+                        parameters,
+                        subsample_timeframe=False,
+                        start_date=start_date,
+                        end_date=end_date,
+                        prediction_horizon=1,
+                        prediction_horizon_mode="index",
+                        prediction_mode=prediction_mode,
+                        plot_results=plot_iterations)
+
+        # calculate prediction and store
+        if parameters.use_return:
+            prediction_error[i] = result[result_label].values[-1] - \
+                                  raw_data[target_quantity_idx][idx_end+1]
+            martingale_error[i] = -raw_data[target_quantity_idx][idx_end+1]
+        else:
+            prediction_error[i] = result[result_label].values[-1] - \
+                                  raw_data[target_quantity_idx][idx_end+1]
+            martingale_error[i] = raw_data[target_quantity_idx][idx_end] - \
+                                  raw_data[target_quantity_idx][idx_end+1]
+
+
+
+        """
         if plot_iterations:
             test_data = pd.concat([test_data, train_data]).sort_index()
 
@@ -137,16 +174,7 @@ def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
                             parameters.rbf_length_scale,
                             parameters.rbf_output_scale)
 
-        # calculate prediction and store
-        if parameters.use_return:
-            prediction_error[i] = result[result_label].values[-1] - \
-                                  test_data[target_quantity_idx].values[-1]
-            martingale_error[i] = -test_data[target_quantity_idx].values[-1]
-        else:
-            prediction_error[i] = result[result_label].values[-1] - \
-                                  test_data[target_quantity_idx].values[-1]
-            martingale_error[i] = train_data[target_quantity_idx].values[-1] - \
-                                  test_data[target_quantity_idx].values[-1]
+
 
         if plot_iterations:
             # plot result
@@ -156,7 +184,7 @@ def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
                                    target_quantity_idx,
                                    result_idx=result_label,
                                    plot_shading_mode=parameters.plot_shading_mode)
-
+        """
     plot_prediction_error_statistic(prediction_error,
                                     reference_error=martingale_error,
                                     num_bins=parameters.histogram_num_bins)
