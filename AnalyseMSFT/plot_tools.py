@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.dates as pltdates
 import pandas as pd
 
 
@@ -8,24 +9,38 @@ def plot_prediction_result(train_data,
                            target_quantity_idx,
                            result_idx="prediction",
                            plot_shading_mode=2.0):
-    plt.figure()
-    plt.plot(pd.to_datetime(train_data["Date"]), train_data[target_quantity_idx], 'g*')
-    plt.plot(pd.to_datetime(test_data["Date"]), test_data[target_quantity_idx], 'b.')
-    plt.plot(pd.to_datetime(result["Date"]), result[result_idx], 'g')
+    fig, ax = plt.subplots()
+    # Plot data
+    plt.plot(pd.to_datetime(test_data["Date"]), test_data[target_quantity_idx], 'b.', label="Test data")
+    plt.plot(pd.to_datetime(train_data["Date"]), train_data[target_quantity_idx], 'g*', label="Train data")
+    # Plot prediction
+    plt.plot(pd.to_datetime(result["Date"]), result[result_idx], 'g-', label="GP mean-fct.")
+    # Plot standard deviation
     plt.plot(pd.to_datetime(result["Date"]), result[result_idx] + result["std"], 'r--')
-    plt.plot(pd.to_datetime(result["Date"]), result[result_idx] - result["std"], 'r--')
+    plt.plot(pd.to_datetime(result["Date"]), result[result_idx] - result["std"], 'r--', label="1-sigma")
     if plot_shading_mode == "2-sigma":
         upper_bound = result[result_idx] + 2.0 * result["std"]
         lower_bound = result[result_idx] - 2.0 * result["std"]
         plt.fill_between(pd.to_datetime(result["Date"]), lower_bound, upper_bound, where=(upper_bound >= lower_bound),
                          interpolate=True,
-                         color='gray', alpha=0.5)
+                         color='gray', alpha=0.5, label=plot_shading_mode)
     else:
         upper_bound = result[result_idx] + 2.0 * result["std"]
         lower_bound = result[result_idx] - 2.0 * result["std"]
         plt.fill_between(pd.to_datetime(result["Date"]), lower_bound, upper_bound, where=(upper_bound >= lower_bound),
                          interpolate=True,
-                         color='gray', alpha=0.5)
+                         color='gray', alpha=0.5, label=plot_shading_mode)
+
+    plt.title("GP fit for quantity "+result_idx)
+    plt.xlabel("Date")
+    plt.ylabel(target_quantity_idx)
+    plt.legend(loc='upper right')
+
+
+    # Set the date format on the x-axis
+    ax.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
+    ax.xaxis.set_major_locator(pltdates.DayLocator(interval=10))  # Major ticks every 10 days
+    ax.xaxis.set_minor_locator(pltdates.DayLocator())
 
     plt.show()
 

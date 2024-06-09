@@ -28,6 +28,6 @@ class parameters:
 raw_data = load_msft(parameters)
 
 #fit_gp(raw_data, parameters, prediction_horizon_mode="day", subsample_timeframe=True, prediction_mode="predict_only")
-gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False)
+gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=True)
 
 pass

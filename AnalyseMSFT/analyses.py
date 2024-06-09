@@ -159,32 +159,6 @@ def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
             martingale_error[i] = raw_data[target_quantity_idx][idx_end] - \
                                   raw_data[target_quantity_idx][idx_end+1]
 
-
-
-        """
-        if plot_iterations:
-            test_data = pd.concat([test_data, train_data]).sort_index()
-
-        # Fit gp
-        result = gp_process(test_data,
-                            train_data,
-                            target_quantity_idx,
-                            result_label,
-                            sigma_target_quantity,
-                            parameters.rbf_length_scale,
-                            parameters.rbf_output_scale)
-
-
-
-        if plot_iterations:
-            # plot result
-            plot_prediction_result(train_data,
-                                   test_data,
-                                   result,
-                                   target_quantity_idx,
-                                   result_idx=result_label,
-                                   plot_shading_mode=parameters.plot_shading_mode)
-        """
     plot_prediction_error_statistic(prediction_error,
                                     reference_error=martingale_error,
                                     num_bins=parameters.histogram_num_bins)
