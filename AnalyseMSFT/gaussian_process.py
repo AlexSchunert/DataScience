@@ -6,10 +6,10 @@ from utils import compute_kernel_matrices, construct_prediction_result
 
 def condition_gpr(train_data, k_xx, col_id, sigma_data):
     """
-    Conditions gaussian process to data, which corresponds to calulating the
-    vector of representer weights and the predictive covariance
+    Conditions gaussian process using data => calulate vector of representer weights and the
+    predictive covariance matrix
 
-    :param train_data: Data used for conditioning
+    :param train_data: Data used for conditioning. Must contain data with label col_id
     :type train_data: DataFrame
     :param k_xx: Kernel matrix of training data
     :type k_xx: ndarray
@@ -18,8 +18,8 @@ def condition_gpr(train_data, k_xx, col_id, sigma_data):
     :param sigma_data: Standard deviation of the quantity fused for conditioning
     :type sigma_data: float
     
-    :return: (representer weights, predictive covariance)
-    :rtype: tuple
+    :return: tuple(representer weights, predictive covariance)
+    :rtype: tuple(ndarray,ndarray)
     """
     # Compute kernel for data points => K_xx
 
@@ -36,24 +36,70 @@ def condition_gpr(train_data, k_xx, col_id, sigma_data):
 
 
 def predict_gpr(alpha, k_zx, k_zz, predictive_cov):
+    """
+    Predict gp mean and standard-deviation for training data z using the kernel matrix of the prediction data k_zz
+    and the cross-kernel matrix of prediction data and training data k_zx.
+
+    :param alpha: Vector of representer weights
+    :type alpha: ndarray
+    :param k_zx: Cross-kernel matrix of prediction data and training data
+    :type k_zx: ndarray
+    :param k_zz: Kernel matrix of prediction data
+    :type k_zz: ndarray
+    :param predictive_cov:
+    :type predictive_cov: ndarray
+
+    :return: tuple(mean,std)
+    :rtype: tuple(ndarray,ndarray)
+    """
+
     ## prediction
-    price_predicted = k_zx @ alpha
+    mean_prediction = k_zx @ alpha
     ## stdev of prediction
     # + sigma_price ** 2 * np.eye(k_zz.shape[0])
     cov_prediction = k_zz - k_zx @ predictive_cov @ k_zx.T
     std_prediction = sqrt(diagonal(cov_prediction))
 
-    return price_predicted, std_prediction
+    return mean_prediction, std_prediction
 
-def gp_process(prediction_data,
+
+# Todo: Add optional input time_index to generalize "dt"
+def gp_process(test_data,
                train_data,
                target_quantity_idx,
                result_label,
                sigma_measurement,
                rbf_length_scale,
                rbf_output_scale):
+    """
+    Executes:
+        - Computation of kernel matrices
+        - Conditioning of gp to training data
+        - Prediction of gp mean and std for test data
+        - Construction of result
+
+
+    :param test_data: Must contain field dt
+    :type test_data: DataFrame
+    :param train_data:
+    :type train_data: DataFrame
+    :param target_quantity_idx:
+    :type target_quantity_idx: str
+    :param result_label:
+    :type result_label: str
+    :param sigma_measurement:
+    :type sigma_measurement: float
+    :param rbf_length_scale:
+    :type rbf_length_scale: float
+    :param rbf_output_scale:
+    :type rbf_output_scale: float
+
+    :return: DataFrame containing the columns: Date, dt,  result_label, and std.
+    :rtype: DataFrame
+    """
+
     # Fit gp
-    k_xx, k_zx, k_zz = compute_kernel_matrices(prediction_data,
+    k_xx, k_zx, k_zz = compute_kernel_matrices(test_data,
                                                train_data,
                                                rbf_length_scale,
                                                rbf_output_scale,
@@ -63,8 +109,7 @@ def gp_process(prediction_data,
     # predict for all data
     mu_predicted, std_prediction = predict_gpr(alpha, k_zx, k_zz, predictive_cov)
     # create result
-    result = construct_prediction_result(prediction_data, mu_predicted, std_prediction,
+    result = construct_prediction_result(test_data, mu_predicted, std_prediction,
                                          result_label=result_label)
 
     return result
-
