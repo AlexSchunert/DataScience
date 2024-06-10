@@ -70,3 +70,21 @@ def plot_prediction_error_statistic(prediction_error, reference_error=None, num_
     plt.xlabel("error")
     plt.ylabel("f")
     plt.show()
+
+def plot_data(data, data_label_y, data_label_x="Date", plot_format=".", title=""):
+    """
+    Two-dimensional plot of data colums identified by data_label_y and data_label_x
+
+    :param param1: Description of param1
+    :type param1: Type of param1
+
+    :return: Description of return value
+    :rtype: Type of return value
+    """
+
+    plt.figure()
+    plt.plot(pd.to_datetime(data[data_label_x]), data[data_label_y], plot_format)
+    plt.xlabel(data_label_x)
+    plt.ylabel(data_label_y)
+    plt.title(title)
+    plt.show()
