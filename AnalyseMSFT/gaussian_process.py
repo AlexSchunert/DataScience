@@ -64,6 +64,7 @@ def predict_gpr(alpha, k_zx, k_zz, predictive_cov):
 
 
 # Todo: Add optional input time_index to generalize "dt"
+# Todo: Generalize kernel function
 def gp_process(test_data,
                train_data,
                target_quantity_idx,
@@ -79,22 +80,22 @@ def gp_process(test_data,
         - Construction of result
 
 
-    :param test_data: Must contain field dt
+    :param test_data: Data used for prediction => Must contain field "dt"
     :type test_data: DataFrame
-    :param train_data:
+    :param train_data: Data used for training (conditioning) => Must contain field "dt" and target_quantity_idx
     :type train_data: DataFrame
-    :param target_quantity_idx:
+    :param target_quantity_idx: String-label of the target quantity to be used
     :type target_quantity_idx: str
-    :param result_label:
+    :param result_label: String-label of the resulting mean values
     :type result_label: str
-    :param sigma_measurement:
+    :param sigma_measurement: Standard deviation of the target quantity
     :type sigma_measurement: float
-    :param rbf_length_scale:
+    :param rbf_length_scale: Length scale of radial basis function
     :type rbf_length_scale: float
-    :param rbf_output_scale:
+    :param rbf_output_scale: Output Scale of radial basis function
     :type rbf_output_scale: float
 
-    :return: DataFrame containing the columns: Date, dt,  result_label, and std.
+    :return: DataFrame containing the columns: Date, dt, result_label, and std.
     :rtype: DataFrame
     """
 
