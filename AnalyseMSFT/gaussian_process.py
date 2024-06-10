@@ -6,13 +6,20 @@ from utils import compute_kernel_matrices, construct_prediction_result
 
 def condition_gpr(train_data, k_xx, col_id, sigma_data):
     """
-    Description of function
+    Conditions gaussian process to data, which corresponds to calulating the
+    vector of representer weights and the predictive covariance
+
+    :param train_data: Data used for conditioning
+    :type train_data: DataFrame
+    :param k_xx: Kernel matrix of training data
+    :type k_xx: ndarray
+    :param col_id: Identifier of target quantity used for conditioning
+    :type col_id: str
+    :param sigma_data: Standard deviation of the quantity fused for conditioning
+    :type sigma_data: float
     
-    :param param1: Description of param1
-    :type param1: Type of param1
-    
-    :return: Description of return value
-    :rtype: Type of return value
+    :return: (representer weights, predictive covariance)
+    :rtype: tuple
     """
     # Compute kernel for data points => K_xx
 
