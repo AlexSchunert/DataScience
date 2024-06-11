@@ -61,7 +61,7 @@ def plot_prediction_result(train_data,
     plt.title("GP fit for quantity " + result_idx)
     plt.xlabel("Date")
     plt.ylabel(target_quantity_idx)
-    plt.legend(loc='upper right')
+    plt.legend(loc='upper left')
 
     # Set the date format on the x-axis
     ax.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
