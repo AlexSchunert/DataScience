@@ -244,7 +244,7 @@ def compute_return(data, target_price_idx):
     :type data: pd.DataFrame
     :param target_price_idx: Label of column for which 1-day return shall be calculated
     :type target_price_idx: str
-    
+
     :return: DataFrame with added column "Return"
     :rtype: pd.DataFrame
     """
