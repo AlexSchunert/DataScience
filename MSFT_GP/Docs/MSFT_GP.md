@@ -18,7 +18,7 @@ The fit between model and data looks quite promising considering the fact that t
 $K(x,x')=exp\left(-\frac{\|x-x'\|_2}{2\sigma_{rbf}^2}\right)$
 
 
-*The green line indicates the mean function $\mu$ of a Gaussian Process (with radial basis function kernel) conditioned on 80% of these data. The standard deviation $\sigma$ of the mean $\mu$ is displayed by the dashed lines.*
+The green line indicates the mean function $\mu$ of a Gaussian Process (with radial basis function kernel) conditioned on 80% of these data. The standard deviation $\sigma$ of the mean $\mu$ is displayed by the dashed lines.
 
 
 ## References
