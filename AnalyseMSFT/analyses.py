@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 from utils import train_test_split, compute_kernel_matrices, construct_prediction_result, compute_return, \
-    select_data_time
+    select_data_time, Parameters
 from plot_tools import plot_prediction_result, plot_prediction_error_statistic
 from gaussian_process import gp_process
 
@@ -18,6 +18,31 @@ def fit_gp(data,
            prediction_horizon_mode="days",
            prediction_mode="all",
            plot_results=True):
+    """
+    General interface to fit gp to timeseries
+
+    :param data: Dataset used to fit GP. Must contain columns labeled "Date", dt, and parameters.target_label
+    :type data: pd.DataFrame
+    :param parameters:
+    :type parameters: Parameters
+    :param subsample_timeframe:
+    :type subsample_timeframe: bool
+    :param start_date:
+    :type start_date: str
+    :param end_date:
+    :type end_date: str
+    :param prediction_horizon:
+    :type prediction_horizon: int
+    :param prediction_horizon_mode:
+    :type prediction_horizon_mode:  str
+    :param prediction_mode:
+    :type prediction_mode: str
+    :param plot_results:
+    :type plot_results: bool
+
+    :return: Description of return value
+    :rtype: Type of return value
+    """
 
     # Check inputs
     if start_date is None:
