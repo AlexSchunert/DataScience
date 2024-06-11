@@ -19,7 +19,7 @@ def condition_gpr(train_data, k_xx, col_id, sigma_data):
     :type sigma_data: float
     
     :return: tuple(representer weights, predictive covariance)
-    :rtype: tuple(ndarray,ndarray)
+    :rtype: (ndarray,ndarray)
     """
     # Compute kernel for data points => K_xx
 
@@ -50,7 +50,7 @@ def predict_gpr(alpha, k_zx, k_zz, predictive_cov):
     :type predictive_cov: ndarray
 
     :return: tuple(mean,std)
-    :rtype: tuple(ndarray,ndarray)
+    :rtype: (ndarray,ndarray)
     """
 
     ## prediction
