@@ -9,7 +9,8 @@ def plot_prediction_result(train_data,
                            result,
                            target_quantity_idx,
                            result_idx="prediction",
-                           plot_shading_mode="2-sigma"):
+                           plot_shading_mode="2-sigma",
+                           tick_interval=10):
     """
     Plots the result of a gp prediction.
 
@@ -62,7 +63,7 @@ def plot_prediction_result(train_data,
 
     # Set the date format on the x-axis
     ax.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
-    ax.xaxis.set_major_locator(pltdates.DayLocator(interval=10))  # Major ticks every 10 days
+    ax.xaxis.set_major_locator(pltdates.DayLocator(interval=tick_interval))  # Major ticks every 10 days
     ax.xaxis.set_minor_locator(pltdates.DayLocator())
 
     plt.show()

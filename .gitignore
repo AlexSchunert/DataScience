@@ -5,7 +5,7 @@ venv/
 .idea/
 
 # More folders to ignore
-AnalyseMSFT/__pycache__/*
+*/__pycache__/*
 
 # Exclude file types
 */*.exe
