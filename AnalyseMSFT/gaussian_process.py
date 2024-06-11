@@ -1,4 +1,4 @@
-from numpy import linalg, eye, sqrt, diagonal
+from numpy import linalg, eye, sqrt, diagonal, ndarray
 import pandas as pd
 
 from utils import compute_kernel_matrices, construct_prediction_result
@@ -10,7 +10,7 @@ def condition_gpr(train_data, k_xx, col_id, sigma_data):
     predictive covariance matrix
 
     :param train_data: Data used for conditioning. Must contain data with label col_id
-    :type train_data: DataFrame
+    :type train_data: pd.DataFrame
     :param k_xx: Kernel matrix of training data
     :type k_xx: ndarray
     :param col_id: Identifier of target quantity used for conditioning
@@ -81,9 +81,9 @@ def gp_process(test_data,
 
 
     :param test_data: Data used for prediction => Must contain field "dt"
-    :type test_data: DataFrame
+    :type test_data: pd.DataFrame
     :param train_data: Data used for training (conditioning) => Must contain field "dt" and target_quantity_idx
-    :type train_data: DataFrame
+    :type train_data: pd.DataFrame
     :param target_quantity_idx: String-label of the target quantity to be used
     :type target_quantity_idx: str
     :param result_label: String-label of the resulting mean values
