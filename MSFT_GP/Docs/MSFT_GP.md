@@ -15,9 +15,7 @@ The fit between model and data looks quite promising considering the fact that t
 |$\sigma_{rbf}$: output-scale |5.0  days |
 |$\sigma_{P}$: std of price   |0.01$     |
 
-$$
-K(x,x')=exp\left(-\frac{\|x-x'\|_2}{2\sigma_{rbf}^2}\right)
-$$
+$K(x,x')=exp\left(-\frac{\|x-x'\|_2}{2\sigma_{rbf}^2}\right)$
 
 
 *The green line indicates the mean function $\mu$ of a Gaussian Process (with radial basis function kernel) conditioned on 80% of these data. The standard deviation $\sigma$ of the mean $\mu$ is displayed by the dashed lines.*
