@@ -84,7 +84,9 @@ def fit_gp(data,
     else:
         data_timeframe_test = data_timeframe
 
-    if prediction_horizon_mode == "index":
+    if prediction_horizon == 0:
+        data_timeframe_predict = pd.DataFrame(columns=data_timeframe_train.columns)
+    elif prediction_horizon_mode == "index":
         idx_date_larger = np.where(data["Date"] > end_date)
         if idx_date_larger is None:
             data_timeframe_predict = pd.DataFrame(columns=data_timeframe_train.columns)
