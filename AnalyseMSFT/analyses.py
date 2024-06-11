@@ -23,25 +23,33 @@ def fit_gp(data,
 
     :param data: Dataset used to fit GP. Must contain columns labeled "Date", dt, and parameters.target_label
     :type data: pd.DataFrame
-    :param parameters:
+    :param parameters: Contains general settings. May be overwritten by function params
     :type parameters: Parameters
-    :param subsample_timeframe:
+    :param subsample_timeframe: If true, the data in the timeframe [start_date,end_date] is sub-sampled.
+                                The portion of data used as test-data is given by parameters.test_data_size.
     :type subsample_timeframe: bool
-    :param start_date:
+    :param start_date: Start of considered timeframe. If there is a data-point with exactly this date, it is included.
+                       If None, the corresponding value from parameters is used.
     :type start_date: str
-    :param end_date:
+    :param end_date: End of considered timeframe. If there is a data-point with exactly this date, it is included
+                     If None, the corresponding value from parameters is used.
     :type end_date: str
-    :param prediction_horizon:
+    :param prediction_horizon: Determines how far into the future predictions are made. Depending on
+                               prediction_horizon_mode, the value either specifies days in the future or
+                               number of (next) future data points. Note that data points must exist in data.
     :type prediction_horizon: int
-    :param prediction_horizon_mode:
+    :param prediction_horizon_mode: Either "days" => prediction of prediction_horizon days into the future or
+                                    "index" => next prediction_horizon points
     :type prediction_horizon_mode:  str
-    :param prediction_mode:
+    :param prediction_mode: Either "all" => prediction is done for data from timeframe and for prediction points or
+                            "predict_only" => prediction is done only for future points
     :type prediction_mode: str
-    :param plot_results:
+    :param plot_results: If true, plot results
     :type plot_results: bool
 
-    :return: Description of return value
-    :rtype: Type of return value
+    :return: DataFrame containing the columns: "Date", "dt", parameters.result_label, and "std". If prediction set
+             is empty, None is returned.
+    :rtype: pd.DataFrame
     """
 
     # Check inputs
