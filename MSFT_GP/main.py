@@ -6,12 +6,15 @@ from plot_tools import plot_data
 
 # Parameters
 parameters = Parameters(num_data_points_gp_fit=50,
-                        start_date="1980-01-01",
-                        end_date="1990-12-31",
+                        start_date="1989-06-01",
+                        end_date="1989-12-31",
                         test_data_size=0.2,
-                        rbf_length_scale=5.0,
-                        rbf_output_scale=10.0,
-                        tick_interval_x=365)
+                        rbf_length_scale=10.0,
+                        rbf_output_scale=5.0,
+                        tick_interval_x=50,
+                        use_return=False,
+                        sigma_price=0.01,
+                        prediction_horizon=0)
 # Load dataset
 raw_data = load_msft(parameters)
 
