@@ -19,7 +19,7 @@ def fit_gp(data,
            prediction_mode="all",
            plot_results=True):
     """
-    General interface to fit gp to timeseries
+    General interface function to fit gp to timeseries
 
     :param data: Dataset used to fit GP. Must contain columns labeled "Date", dt, and parameters.target_label
     :type data: pd.DataFrame
@@ -129,19 +129,27 @@ def fit_gp(data,
 
 
 def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
-    # In case the target quantity is the Return, compute it
     """
-    if parameters.use_return:
-        raw_data = compute_return(raw_data, parameters.target_price)
-        raw_data = raw_data.reset_index(drop=True)
-        target_quantity_idx = "Return"
-        result_label = "Return"
-        sigma_target_quantity = parameters.sigma_return
-    else:
-        target_quantity_idx = parameters.target_price
-        result_label = parameters.target_price
-        sigma_target_quantity = parameters.sigma_price
+    This function implements an experiment evaluating the usefulness of the implemented gaussian process regression
+    for the prediction of stock prices or 1-day-returns, respectively. For that the algorithm samples random timeframes
+    of fixed length from the data and predicts the stock price (or return) for the next day. The prediction error is
+    then calculated using the known stock price (or return) from the data. For comparison, the gp prediction is compared
+    to a constant stock price (or zero return), which corresponds to assuming a martingale time series for the stock
+    price. The above procedure is repeated parameters.num_iter_error_stat time to build a statistic which is ultimately
+    plotted in a histogram plot. Note that the length of the considered timeframe can be set using
+    parameters.num_data_points_gp_fit.
+
+    :param raw_data: Dataset used for analysis. Must contain columns labeled "Date", dt, and parameters.target_label
+    :type raw_data: pd.DataFrame
+    :param parameters: Contains general settings.
+    :type parameters: Parameters
+    :param plot_iterations: If true, plot fit results in each iterations
+    :type plot_iterations: bool
+
+    :return: ---
+    :rtype: None
     """
+
     # Set name of result and target quantity index
     result_label = parameters.target_label
     target_quantity_idx = parameters.target_label
