@@ -9,7 +9,30 @@ def plot_prediction_result(train_data,
                            result,
                            target_quantity_idx,
                            result_idx="prediction",
-                           plot_shading_mode=2.0):
+                           plot_shading_mode="2-sigma"):
+    """
+    Plots the result of a gp prediction.
+
+    :param train_data: DataFrame with data used for training. Must contain columns labeled "Date" and
+                       target_quantity_idx
+    :type train_data: pd.DataFrame
+    :param test_data: DataFrame with data used for testing/prediction. Must contain columns labeled "Date" and
+                      target_quantity_idx
+    :type test_data: pd.DataFrame
+    :param result: DataFrame with gp prediction results. Must contain columns labeled "Date" and result_idx
+    :type result: pd.DataFrame
+    :param target_quantity_idx: Label of target quantity used in gp prediction
+    :type target_quantity_idx: str
+    :param result_idx: Label of gp prediction result
+    :type result_idx: str
+    :param plot_shading_mode: Determines the region around gp mean function that is shaded. Currently only "2-sigma"
+                              is supported => 2-sigma interval around gp mean is shaded in gray.
+    :type plot_shading_mode: str
+
+    :return: ---
+    :rtype: None
+    """
+
     fig, ax = plt.subplots()
     # Plot data
     plt.plot(pd.to_datetime(test_data["Date"]), test_data[target_quantity_idx], 'b.', label="Test data")
@@ -46,6 +69,20 @@ def plot_prediction_result(train_data,
 
 
 def plot_prediction_error_statistic(prediction_error, reference_error=None, num_bins=50):
+    """
+    Plots histograms of prediction_error and reference_error
+
+    :param prediction_error: Error of gp prediction
+    :type prediction_error: np.ndarray
+    :param reference_error: Error of reference prediction (e.g. constant stock price)
+    :type reference_error: np.ndarray
+    :param num_bins: Number of histogram bins
+    :type num_bins: int
+
+    :return: ---
+    :rtype: None
+    """
+
     # Compute mean and std for error vecs, create label, plot
     mean_prediction_error = np.mean(prediction_error)
     std_prediction_error = np.std(prediction_error)
