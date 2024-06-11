@@ -42,7 +42,8 @@ class Parameters:
                  prediction_horizon=10,
                  num_iter_error_stat=1000,
                  num_data_points_gp_fit=10,
-                 histogram_num_bins=100):
+                 histogram_num_bins=100,
+                 tick_interval_x=10):
         """
         Initialises the parameter dataclass
 
@@ -82,6 +83,8 @@ class Parameters:
         :type num_data_points_gp_fit: int
         :param histogram_num_bins: Number of bins in histogram plot
         :type histogram_num_bins: int
+        :param tick_interval_x: Tick on x-axis every tick_interval_x days
+        :type tick_interval_x: int
 
         :return: The created parameters dataclass
         :rtype: Parameters
@@ -101,6 +104,7 @@ class Parameters:
         self.num_iter_error_stat = num_iter_error_stat
         self.num_data_points_gp_fit = num_data_points_gp_fit
         self.histogram_num_bins = histogram_num_bins
+        self.tick_interval_x = tick_interval_x
 
 
 def load_msft(parameters):

@@ -10,7 +10,7 @@ def plot_prediction_result(train_data,
                            target_quantity_idx,
                            result_idx="prediction",
                            plot_shading_mode="2-sigma",
-                           tick_interval=10):
+                           tick_interval_x=10):
     """
     Plots the result of a gp prediction.
 
@@ -29,6 +29,8 @@ def plot_prediction_result(train_data,
     :param plot_shading_mode: Determines the region around gp mean function that is shaded. Currently only "2-sigma"
                               is supported => 2-sigma interval around gp mean is shaded in gray.
     :type plot_shading_mode: str
+    :param tick_interval_x: Tick on x-axis every tick_interval_x days
+    :type tick_interval_x: int
 
     :return: ---
     :rtype: None
@@ -63,8 +65,8 @@ def plot_prediction_result(train_data,
 
     # Set the date format on the x-axis
     ax.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
-    ax.xaxis.set_major_locator(pltdates.DayLocator(interval=tick_interval))  # Major ticks every 10 days
-    ax.xaxis.set_minor_locator(pltdates.DayLocator())
+    ax.xaxis.set_major_locator(pltdates.DayLocator(interval=tick_interval_x))  # Major ticks every 10 days
+    ax.xaxis.set_minor_locator(pltdates.DayLocator(interval=tick_interval_x))
 
     plt.show()
 

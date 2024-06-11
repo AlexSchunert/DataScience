@@ -123,7 +123,8 @@ def fit_gp(data,
                                result,
                                parameters.target_label,
                                result_idx=result_label,
-                               plot_shading_mode=parameters.plot_shading_mode)
+                               plot_shading_mode=parameters.plot_shading_mode,
+                               tick_interval_x=parameters.tick_interval_x)
 
     return result
 

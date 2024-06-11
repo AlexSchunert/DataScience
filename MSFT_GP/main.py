@@ -10,7 +10,8 @@ parameters = Parameters(num_data_points_gp_fit=50,
                         end_date="1990-12-31",
                         test_data_size=0.2,
                         rbf_length_scale=5.0,
-                        rbf_output_scale=10.0)
+                        rbf_output_scale=10.0,
+                        tick_interval_x=365)
 # Load dataset
 raw_data = load_msft(parameters)
 
