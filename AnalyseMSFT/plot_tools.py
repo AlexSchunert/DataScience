@@ -32,11 +32,10 @@ def plot_prediction_result(train_data,
                          interpolate=True,
                          color='gray', alpha=0.5, label=plot_shading_mode)
 
-    plt.title("GP fit for quantity "+result_idx)
+    plt.title("GP fit for quantity " + result_idx)
     plt.xlabel("Date")
     plt.ylabel(target_quantity_idx)
     plt.legend(loc='upper right')
-
 
     # Set the date format on the x-axis
     ax.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
@@ -47,7 +46,6 @@ def plot_prediction_result(train_data,
 
 
 def plot_prediction_error_statistic(prediction_error, reference_error=None, num_bins=50):
-
     # Compute mean and std for error vecs, create label, plot
     mean_prediction_error = np.mean(prediction_error)
     std_prediction_error = np.std(prediction_error)
@@ -71,15 +69,25 @@ def plot_prediction_error_statistic(prediction_error, reference_error=None, num_
     plt.ylabel("f")
     plt.show()
 
+
 def plot_data(data, data_label_y, data_label_x="Date", plot_format=".", title=""):
     """
-    Two-dimensional plot of data colums identified by data_label_y and data_label_x
+    Two-dimensional plot of data columns identified by data_label_y and data_label_x
 
-    :param param1: Description of param1
-    :type param1: Type of param1
+    :param data: DataFrame containing columns with labels data_label_y and data_label_x
+    :type data: pd.DataFrame
+    :param data_label_y: String label of y-axis data
+    :type data_label_y: str
+    :param data_label_x: String label of x-axis data
+    :type data_label_x: str
+    :param plot_format: Format string passed to matplotlibs plot fct.
+    :type plot_format: str
+    :param title: Title of the plot
+    :type title: str
 
-    :return: Description of return value
-    :rtype: Type of return value
+
+    :return: ---
+    :rtype: None
     """
 
     plt.figure()
