@@ -1,7 +1,7 @@
 # MSFT vs GP
 ## Table of Contents
 
-1. [Introduction](#introductionn)
+1. [Introduction](#introduction)
 2. [References](#references)
 
 ## Introduction
@@ -22,6 +22,9 @@ In order to get some hands-on experience with GPs, I decided to implement it mys
 
 #### Why Microsoft stock data?
 The reason I picked Microsoft stock data to run my GP implementation on is two-fold. Firstly, the data is one-dimensional (e.g. one independant and one dependant variable) and meaningful chunks of data are limited in size making inference on a relatively weak computer feasible. Secondly, I really wanted to work with financial data. So far I have mostly worked with sensor data resulting from some physical measurement process (e.g. image data or timeseries data resulting from a range-finder etc.). Looking into financial data offers new challenges and is a good chance to broaden my horizon. Furthermore, there are obvious and tangible applications of applying GPs to financial data such as predicting stock prices or returns. 
+
+### Implementation
+Mostly based on [3.](#references) => 09.pdf/12.pdf
 
 ### Initial Example
 
@@ -45,7 +48,7 @@ The definition of the radial basis kernel function with parameters length_scale 
 Finally, the assumed standard deviation of the stock price data $\sigma_P$ mainly influences the standard deviation $\sigma_{\mu}$ of the GP mean function $\mu$ displayed in the plot by the dashed red lines (1 x $\sigma_{\mu}$) and the shaded gray area (2 x $\sigma_{\mu}$), respectively. Additionally, $\sigma_P$ controls how closely the prediction has to interpolate the training data.  
 
 While visually compelling, there are a couple of issues with the result shown in Figure 1.
-
+ 
 1. The hyperparameter length_scale has been chosen to visually match the GP mean function to the progression of the stock price data (i.e. to make it visually compelling). Changing the value of the length_scale has a strong effect on the GPs mean function. This is illustrated in Figure 2 showing the initial example opposed to a result obtained with length_scale 200. As mentioned earlier this constitutes one of the main advantages of GPs, namely their flexibility. However, it also poses the risk of "over-" or "under-smoothing" the data in case length_scale is not set appropriately. In further analyses the length_scale is chosen by trial-and-error with a reasonable prior value, reflecting the expected covariance structure of the signal, in mind. Alternative approaches to setting length_scale may include analysis of the covariance structure of the data and hyperparameter optimization. 
 <p align="center">
   <img src="resources/PriceHigh_19890601_19891231_HandTuned.png" alt="drawing" width="300"/>
@@ -56,9 +59,11 @@ While visually compelling, there are a couple of issues with the result shown in
 
 2. Choosing a kernel function
 3. Prior mean function => Return instead of price
-4. Proper value for std of data: Add a plot for high standard-deviation => result is smoother
+4. Proper value for std of data: Add a plot for high standard-deviation => result is smoother, Prior in initial example seems a bit small
 
+## Usage
 
+## Analyses
 
 
 <!-- 
