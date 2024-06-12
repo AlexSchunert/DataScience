@@ -1,8 +1,26 @@
 # MSFT vs GP
+# Table of Contents
+
+1. [Introduction](#introductionn)
+2. [References](#references)
 
 ## Introduction
-**Add motivation here**
 
+### Motivation
+
+My interest in Gaussian Processes (GP) was sparked while I was following along the lecture Probabilistic Machine Learning given by Philipp Hennig (cf. 1. in [References](#references)). The lecture is a beautiful and extensive introduction into the topic featuring both theory and implementation and is complemented by youtube videos. If your aim is to understand GPs in depth, I would highly recommend to check it out. 
+
+The thing that struck me the most about GPs is their flexibility. Using standard parametric approaches to parameter estimation, the first question is usually which parametric model may be appropriate  for the data at hand. Specifying said model can be quite frustrating and tedious. Instead of a full parametric model "only" the kernel function and its hyperparameters must be specified when working with GPs. One may ask now, what the advantage of the GP compared to a parametric model actually is. Ultimetely, we just replaced the choice of a functional model with the choice of a kernel function.  In my opinion there are a couple of distinct advantages:
+
+* The range of functions that can be sampled from a GP (given its kernel function and hyperparameters) is larger than the range of functions that can be sampled from a parametric model. 
+* Adapting the model to a specific dataset only requires adaption of the kernel function and its hyperparameters opposed to completely changing the parametrization of the model.
+* Automatic tuning of hyperparameters seems more practical compared to parametric regression as usage of gradient based optimization approaches is possible (unless you want to optimize over different kernel functions).
+
+In order to get some hands-on experience with GPs, I decided to implement it myself more or less from scratch. I am aware that there are existing implementations that are much better than my take on the topic (e.g. 2. in [References](#references)). However, the aim is not to implement a competetive python package, but to understand the mechanics of working with GPs. 
+
+
+
+### Initial Example
 <img src="resources/PriceHigh_19890601_19891231_HandTuned.png" alt="drawing" width="600"/>
 
 The above example shows the highest microsoft stock price (cf. <a href="/DataSets/Docs/Datasets.md">Datasets</a>) for each day between June 1st and December 31st 1989 (<span style="color: blue;">&#9679;</span> and <span style="color: green;">&#9733;</span>). Using 80% of these data a Gaussian Process (GP) has been trained whose mean function $\mu$ is indicated by the green line.  Those data used for training (GP has been conditioned on these data) is referred to as training data and is shown as <span style="color: green;">&#9733;</span>. The complementary dataset, for which only predictions are made, is referred to as test data and indicated by <span style="color: blue;">&#9679;</span>-symbols. 
@@ -22,7 +40,8 @@ The green line indicates the mean function $\mu$ of a Gaussian Process (with rad
 
 
 ## References
-1. [Probabilistic_ML](https://github.com/philipphennig/Probabilistic_ML)*: "Probabilistic Machine Learning" Course at the University of Tübingen, Summer Term 2023, Philipp Hennig. Under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.](https://creativecommons.org/licenses/by-nc-sa/4.0/)* Lecture provides a very deep introduction into Gaussian Processes and is complemented by youtube-videos.   
+1. [Probabilistic_ML](https://github.com/philipphennig/Probabilistic_ML)*: "Probabilistic Machine Learning" Course at the University of Tübingen, Summer Term 2023, Philipp Hennig. Under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.](https://creativecommons.org/licenses/by-nc-sa/4.0/)* Lecture provides a very deep introduction into Gaussian Processes and is complemented by youtube-videos.
+2. [GP in scikit-learn](https://scikit-learn.org/stable/modules/gaussian_process.html)*: "Documentation of Gaussian processes in scikit-learn", v1.5.0, [scikit-learn core team](https://scikit-learn.org/dev/about.html#authors), Under [BSD 3-Clause License](https://opensource.org/license/bsd-3-clause)*   
 
 ## Possible improvements
 * Estimation of data standard deviation from data
