@@ -42,8 +42,26 @@ In  particular, the following parameters have been used to produce the plot show
 |$\sigma_{P}$: std of price   |0.01 $    |
 
 The definition of the radial basis kernel function with parameters length_scale and output_scale has been adopted from [3.](#references). Basically, length-scale controls how rigid the resulting mean function is gonna be, while output_scale controls its variability along the taget axis. 
-Finally, the assumed standard deviation of the stock price data $\sigma_P$ mainly influences the standard deviation $\sigma_{\mu}$ of the GP mean function $\mu$ displayed in the plot by the dashed red lines (1x$\sigma_{\mu}$) and the shaded gray area (2x$\sigma_{\mu}$), respectively. Additionally, $\sigma_P$ controls how closely the prediction has to interpolate the training data.  
+Finally, the assumed standard deviation of the stock price data $\sigma_P$ mainly influences the standard deviation $\sigma_{\mu}$ of the GP mean function $\mu$ displayed in the plot by the dashed red lines (1 x $\sigma_{\mu}$) and the shaded gray area (2 x $\sigma_{\mu}$), respectively. Additionally, $\sigma_P$ controls how closely the prediction has to interpolate the training data.  
 
+While visually compelling, there are a couple of issues with the result shown in Figure 1.
+
+1. The hyperparameter length_scale has been chosen to visually match the GP mean function to the progression of the stock price data (i.e. to make it visually compelling). Changing the value of the length_scale has a strong effect on the GPs mean function. This is illustrated in Figure 2 showing the initial example opposed to a result obtained with length_scale 200. As mentioned earlier this constitutes one of the main advantages of GPs, namely their flexibility. However, it also poses the risk of "over-" or "under-smoothing" the data in case length_scale is not set appropriately. In further analyses the length_scale is chosen by trial-and-error with a reasonable prior value, reflecting the expected covariance structure of the signal, in mind. Alternative approaches to setting length_scale may include analysis of the covariance structure of the data and hyperparameter optimization. 
+<p align="center">
+  <img src="resources/PriceHigh_19890601_19891231_HandTuned.png" alt="drawing" width="300"/>
+  <img src="resources/PriceHigh_19890601_19891231_HandTuned_LS200.png" alt="drawing" width="300"/>
+  <br>
+  <em>Figure 2: Initial example (left), Like initial example but with length_scale 200 (right).</em>
+</p>
+
+2. Choosing a kernel function
+3. Prior mean function => Return instead of price
+4. Proper value for std of data: Add a plot for high standard-deviation => result is smoother
+
+
+
+
+<!-- 
 <p align="center">
   <img src="resources/PriceHigh_19890601_19891231_HandTuned_TrainTestSpl_50_50.png" alt="drawing" width="600"/>
   <br>
@@ -52,10 +70,11 @@ Finally, the assumed standard deviation of the stock price data $\sigma_P$ mainl
 
 Problems start to show as soon as the portion of test data is increased. The result for a split with 50% training and 50% test data is shown in Figure 2. It is apparent that the model performs poorly for time periods where there are no training data points. Although the model indicates a high uncertainty about its mean function via the estimated $\sigma_{\mu}$, which is clearly visible in Figure 2, the estimate  
 
+
 **Fit data and leave large gap in between with parameters==plot**
 
 The green line indicates the mean function $\mu$ of a Gaussian Process (with radial basis function kernel) conditioned on 80% of these data. The standard deviation $\sigma$ of the mean $\mu$ is displayed by the dashed lines.
-
+-->
 
 ## References
 1. [Probabilistic_ML](https://github.com/philipphennig/Probabilistic_ML)*: "Probabilistic Machine Learning" Course at the University of Tübingen, Summer Term 2023, Philipp Hennig. Under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.](https://creativecommons.org/licenses/by-nc-sa/4.0/)* Lecture provides a very deep introduction into Gaussian Processes and is complemented by youtube-videos.
