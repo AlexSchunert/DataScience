@@ -15,14 +15,13 @@ The theroretical answer would be: A probability distribution over function space
 I won't go into any more detail as there is great source material available. Check out [1.](#references) and [3.](#references) in references.
 
 ## Implementation
-The gp implementation [gaussian_process.py](../gaussian_process.py) is homebrew. The implementation is mostly based on [1.](#references) (lectures 9 and 12 if aI remember correctly). The rest is currently pretty much plot-tools and data-plumbing using pandas. 
+The gp implementation [gaussian_process.py](../gaussian_process.py) is homebrew. It is mostly based on [1.](#references) (lectures 9 and 12 if aI remember correctly). The rest is currently pretty much plot-tools and data-plumbing using pandas. 
 
 ## Usage
-I haven't managed to write a command line parser yet. There is an 
+Command line parser in the making. 
 
 ## Analyses
 A log of the [Analyses](Analyses.md) done so far.
-
 
 ## References
 1. [Probabilistic_ML](https://github.com/philipphennig/Probabilistic_ML)*: "Probabilistic Machine Learning" Course at the University of Tübingen, Summer Term 2023, Philipp Hennig. Under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.](https://creativecommons.org/licenses/by-nc-sa/4.0/)* 

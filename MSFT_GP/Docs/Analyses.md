@@ -1,7 +1,4 @@
-# Analyses
-A log of the analyses done so far
-
-## Initial Example
+### Initial Example
 
 <p align="center">
   <img src="resources/PriceHigh_19890601_19891231_HandTuned.png" alt="drawing" width="600"/>
@@ -26,3 +23,4 @@ A log of the analyses done so far
 
 It should be noted here that those parameters have been chosen to achieve a visually compelling result. If it's of any practical use remains to be seen.
 
+ 

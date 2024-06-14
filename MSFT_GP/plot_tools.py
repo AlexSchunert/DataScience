@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as pltdates
 import numpy as np
 import pandas as pd
+from scipy.fft import fft, fftfreq
+from scipy.signal import windows, correlate, periodogram
+
+from utils import autocorrelations_sliding_window
 
 
 def plot_prediction_result(train_data,
@@ -110,10 +114,16 @@ def plot_prediction_error_statistic(prediction_error, reference_error=None, num_
     plt.show()
 
 
-def plot_data(data, data_label_y, data_label_x="Date", plot_format=".", title=""):
+def plot_data(data,
+              data_label_y,
+              data_label_x="Date",
+              plot_format=".",
+              title="",
+              mode="Standard",
+              nbins=100):
     """
-    Two-dimensional plot of data columns identified by data_label_y and data_label_x
-
+    Two-dimensional plot of data columns identified by data_label_y and data_label_x. If mode=="Full", also
+    periodogram, histogram, and estimated autocorrelation are shown
     :param data: DataFrame containing columns with labels data_label_y and data_label_x
     :type data: pd.DataFrame
     :param data_label_y: String label of y-axis data
@@ -124,15 +134,92 @@ def plot_data(data, data_label_y, data_label_x="Date", plot_format=".", title=""
     :type plot_format: str
     :param title: Title of the plot
     :type title: str
-
+    :param mode: "Standard" for simple timeseries plot, "Full" for timeseries, periodogram, histogram,
+                 and estimated autocorrelation
+    :type mode: str
+    :param nbins: Number of histogram bins in mode == "Full"
+    :type nbins: int
 
     :return: ---
     :rtype: None
     """
 
-    plt.figure()
-    plt.plot(pd.to_datetime(data[data_label_x]), data[data_label_y], plot_format)
-    plt.xlabel(data_label_x)
-    plt.ylabel(data_label_y)
-    plt.title(title)
+    if mode == "Standard":
+        plt.figure()
+        plt.plot(pd.to_datetime(data[data_label_x]), data[data_label_y], plot_format)
+        plt.xlabel(data_label_x)
+        plt.ylabel(data_label_y)
+        plt.title(title)
+        plt.show()
+
+    if mode == "Full":
+        signal = data[data_label_y].values  # 0.1 * randn(raw_data["Return"].values.shape[0])
+
+        # Get signals and time
+        t = data["dt"]
+        signal = signal
+        # Windowing for spectrum calculation
+        window = windows.hamming(len(signal))
+        windowed_signal = signal * window
+        # Spectrum
+        f, Pxx = periodogram(windowed_signal, 1)
+        # Autocovariance
+        auto_cov = correlate(signal, signal, mode="full")[len(signal) - 1:] / len(signal)
+        auto_cov = auto_cov / auto_cov[0]
+        # Plot
+        fig, axs = plt.subplots(2, 2)
+        axs[0, 0].plot(t, signal)
+        axs[0, 0].set_xlabel("time")
+        axs[0, 0].set_ylabel("signal")
+        axs[0, 0].set_title("signal vs time")
+        axs[1, 0].plot(f, Pxx)
+        axs[1, 0].set_xlabel("frequency")
+        axs[1, 0].set_ylabel("power")
+        axs[1, 0].set_title("PSD")
+        axs[0, 1].plot(auto_cov)
+        axs[0, 1].set_xlabel("dt")
+        axs[0, 1].set_ylabel("Corr")
+        axs[0, 1].set_title("Autocorrelation")
+        axs[1, 1].hist(signal, bins=nbins)
+        axs[1, 1].set_xlabel("data_label_y")
+        axs[1, 1].set_ylabel("F")
+        axs[1, 1].set_title("Histogram")
+        plt.tight_layout()
+        plt.show()
+
+
+def plot_sliding_window_autocorr(data,
+                                 data_label_y,
+                                 data_label_x="dt",
+                                 window_size=180):
+    """
+    Calculate autocorrelation with sliding window and plot as 2.5D
+
+    :param data: DataFrame containing columns with labels data_label_y and data_label_x
+    :type data: pd.DataFrame
+    :param data_label_y: String label of y-axis data
+    :type data_label_y: str
+    :param data_label_x: String label of x-axis data
+    :type data_label_x: str
+    :param window_size: Length of autocorrelation window.
+    :type window_size: ndarray
+
+    :return: ---
+    :rtype: None
+    """
+    signal = data[data_label_y].values  # 0.1 * randn(raw_data["Return"].values.shape[0])
+
+    # Get signals and time
+    t = data["dt"]
+    signal = signal
+    autocorr = autocorrelations_sliding_window(signal, window_size=window_size)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    # Plot the surface
+    x, y = np.meshgrid(np.arange(autocorr.shape[1]), np.arange(autocorr.shape[0]))
+    surf = ax.plot_surface(x, y, autocorr, cmap='viridis')
+    plt.xlabel("x")
+    plt.ylabel("y")
+    ax.set_zlabel("z")
     plt.show()
