@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 from utils import train_test_split, compute_kernel_matrices, construct_prediction_result, compute_return, \
-    select_data_time
+    select_data_time, Parameters
 from plot_tools import plot_prediction_result, plot_prediction_error_statistic
 from gaussian_process import gp_process
 
@@ -18,6 +18,39 @@ def fit_gp(data,
            prediction_horizon_mode="days",
            prediction_mode="all",
            plot_results=True):
+    """
+    General interface function to fit gp to timeseries
+
+    :param data: Dataset used to fit GP. Must contain columns labeled "Date", dt, and parameters.target_label
+    :type data: pd.DataFrame
+    :param parameters: Contains general settings. May be overwritten by function params
+    :type parameters: Parameters
+    :param subsample_timeframe: If true, the data in the timeframe [start_date,end_date] is sub-sampled.
+                                The portion of data used as test-data is given by parameters.test_data_size.
+    :type subsample_timeframe: bool
+    :param start_date: Start of considered timeframe. If there is a data-point with exactly this date, it is included.
+                       If None, the corresponding value from parameters is used.
+    :type start_date: str
+    :param end_date: End of considered timeframe. If there is a data-point with exactly this date, it is included
+                     If None, the corresponding value from parameters is used.
+    :type end_date: str
+    :param prediction_horizon: Determines how far into the future predictions are made. Depending on
+                               prediction_horizon_mode, the value either specifies days in the future or
+                               number of (next) future data points. Note that data points must exist in data.
+    :type prediction_horizon: int
+    :param prediction_horizon_mode: Either "days" => prediction of prediction_horizon days into the future or
+                                    "index" => next prediction_horizon points
+    :type prediction_horizon_mode:  str
+    :param prediction_mode: Either "all" => prediction is done for data from timeframe and for prediction points or
+                            "predict_only" => prediction is done only for future points
+    :type prediction_mode: str
+    :param plot_results: If true, plot results
+    :type plot_results: bool
+
+    :return: DataFrame containing the columns: "Date", "dt", parameters.result_label, and "std". If prediction set
+             is empty, None is returned.
+    :rtype: pd.DataFrame
+    """
 
     # Check inputs
     if start_date is None:
@@ -51,7 +84,9 @@ def fit_gp(data,
     else:
         data_timeframe_test = data_timeframe
 
-    if prediction_horizon_mode == "index":
+    if prediction_horizon == 0:
+        data_timeframe_predict = pd.DataFrame(columns=data_timeframe_train.columns)
+    elif prediction_horizon_mode == "index":
         idx_date_larger = np.where(data["Date"] > end_date)
         if idx_date_larger is None:
             data_timeframe_predict = pd.DataFrame(columns=data_timeframe_train.columns)
@@ -90,25 +125,34 @@ def fit_gp(data,
                                result,
                                parameters.target_label,
                                result_idx=result_label,
-                               plot_shading_mode=parameters.plot_shading_mode)
+                               plot_shading_mode=parameters.plot_shading_mode,
+                               tick_interval_x=parameters.tick_interval_x)
 
     return result
 
 
 def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
-    # In case the target quantity is the Return, compute it
     """
-    if parameters.use_return:
-        raw_data = compute_return(raw_data, parameters.target_price)
-        raw_data = raw_data.reset_index(drop=True)
-        target_quantity_idx = "Return"
-        result_label = "Return"
-        sigma_target_quantity = parameters.sigma_return
-    else:
-        target_quantity_idx = parameters.target_price
-        result_label = parameters.target_price
-        sigma_target_quantity = parameters.sigma_price
+    This function implements an experiment evaluating the usefulness of the implemented gaussian process regression
+    for the prediction of stock prices or 1-day-returns, respectively. For that the algorithm samples random timeframes
+    of fixed length from the data and predicts the stock price (or return) for the next day. The prediction error is
+    then calculated using the known stock price (or return) from the data. For comparison, the gp prediction is compared
+    to a constant stock price (or zero return), which corresponds to assuming a martingale time series for the stock
+    price. The above procedure is repeated parameters.num_iter_error_stat time to build a statistic which is ultimately
+    plotted in a histogram plot. Note that the length of the considered timeframe can be set using
+    parameters.num_data_points_gp_fit.
+
+    :param raw_data: Dataset used for analysis. Must contain columns labeled "Date", dt, and parameters.target_label
+    :type raw_data: pd.DataFrame
+    :param parameters: Contains general settings.
+    :type parameters: Parameters
+    :param plot_iterations: If true, plot fit results in each iterations
+    :type plot_iterations: bool
+
+    :return: ---
+    :rtype: None
     """
+
     # Set name of result and target quantity index
     result_label = parameters.target_label
     target_quantity_idx = parameters.target_label
