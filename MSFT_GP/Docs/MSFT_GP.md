@@ -1,9 +1,4 @@
 # MSFT vs GP
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [References](#references)
-
 
 ## Goals
 My current goal is to learn about stock price data and gaussian processes. Thus, I decided to try and fit microsoft stock data using gaussian processes. At least, this was the original idea, as this won't work the way I thought it would (cf. [Analyses](#analyses)). I may decide to stick to the  <a href="/DataSets/Docs/Datasets.md">MSFT dataset</a> but switch to other methods. The goal is not to implement a competetice GP library. I am aware that there are existing implementations that are much better than my take (e.g. 2. in [References](#references)).
