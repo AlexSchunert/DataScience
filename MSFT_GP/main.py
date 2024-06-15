@@ -49,20 +49,21 @@ def plot_return_ts():
 
 
 
-def plot_return_full():
+def plot_return_full(return_mode="standard"):
     # Parameters
     parameters = Parameters(start_date="1980-01-01",
                             end_date="2024-12-31",
                             tick_interval_x=1000,
                             use_return=True,
                             prediction_horizon=10,
-                            target_label="Adj Close")
+                            target_label="Adj Close",
+                            return_mode=return_mode)
     # Load dataset
     raw_data = load_msft(parameters)
     raw_data = select_data_time(raw_data, parameters.start_date, parameters.end_date)
     # Plot
     plot_data(raw_data,
-              "Return",
+              parameters.target_label,
               "Date",
               plot_format="b",
               title="",
@@ -120,7 +121,7 @@ def make_arg_parser():
 
     parser = ArgumentParser()
     parser.add_argument("--mode", type=str, help="Mode: init_example/plot_return_ts/plot_return_full/plot_return_full_subs", required=False)
-
+    parser.add_argument("--return_mode", type=str, help="If not set or set to standard, returns are used. If set to abs, abs returns are used")
     return parser
 
 
@@ -135,12 +136,18 @@ def main():
     else:
         mode = args.mode
 
+    if args.return_mode is None:
+        return_mode = "standard"
+    else:
+        return_mode = args.return_mode
+
+
     if mode == "init_example":
         run_initial_example()
     elif mode == "plot_return_ts":
         plot_return_ts()
     elif mode == "plot_return_full":
-        plot_return_full()
+        plot_return_full(return_mode=return_mode)
     elif mode == "plot_return_full_subs":
         plot_return_full_subs()
     else:

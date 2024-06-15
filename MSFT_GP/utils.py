@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split as train_test_split_sklearn
 from dataclasses import dataclass
-from numpy import ndarray, zeros
+from numpy import ndarray, zeros, abs
 from scipy.signal import correlate
 from kernel_functions import rbf_kernel
 
@@ -37,6 +37,7 @@ class Parameters:
                  sigma_used=0.0,
                  target_label="High",
                  use_return=True,
+                 return_mode="Standard",
                  plot_shading_mode="2-sigma",
                  start_date="2000-01-01",
                  end_date="2006-12-31",
@@ -64,6 +65,8 @@ class Parameters:
         :type target_label: str
         :param use_return: If true, return is computed for target quantity and used for further computation
         :type use_return: bool
+        :param return_mode: "standard" for signed returns, "abs" for absolute values
+        :type return_mode: str
         :param plot_shading_mode: Determines which region shall be shaded in plot_prediction_result. Currently only
                                   2-sigma is supported => region of 2 x standard deviation around mean
         :type plot_shading_mode: str
@@ -98,6 +101,7 @@ class Parameters:
         self.sigma_used = sigma_used
         self.target_label = target_label
         self.use_return = use_return
+        self.return_mode = return_mode
         self.plot_shading_mode = plot_shading_mode
         self.start_date = start_date
         self.end_date = end_date
@@ -132,8 +136,16 @@ def load_msft(parameters):
     if parameters.use_return:
         raw_data = compute_return(raw_data, parameters.target_label)
         raw_data = raw_data.reset_index(drop=True)
-        parameters.target_label = "Return"
-        parameters.sigma_used = parameters.sigma_return
+
+        if parameters.return_mode == "abs":
+            raw_data["AbsReturn"] = abs(raw_data["Return"])
+            parameters.target_label = "AbsReturn"
+            parameters.sigma_used = parameters.sigma_return
+        else:
+
+            parameters.target_label = "Return"
+            parameters.sigma_used = parameters.sigma_return
+
     else:
         parameters.sigma_used = parameters.sigma_price
 
