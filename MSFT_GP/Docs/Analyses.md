@@ -5,6 +5,7 @@ To generate the plot, run `python -m main --mode init_example`
   <br>
   <em>Figure 1: Initial example.</em>
 </p>
+Notes:
 
 * Highest microsoft stock price for June 1st and December 31st 1989
 * Training data  <span style="color: green;">&#9733;</span> (80%), test data <span style="color: blue;">&#9679;</span> (20%)
@@ -28,13 +29,14 @@ Start with a plot of the timeseries of one-day returns of the adjusted closing p
 * Analyze return instead of price => timeseries is "closer" to stationarity => Use of standard signal processing methods possible
 * One-day returns of adjusted closing price is used => Closing price is considered the most important stock price of the day
 
-To generate the plot, run `pyton -m main --mode plot_return_ts` 
+To generate the plot, run `python -m main --mode plot_return_ts` 
 
 <p align="center">
   <img src="resources/OneDayReturns_ClosingAdj_TimeseriesFull.png" alt="drawing" width="600"/>
   <br>
-  <em>Figure 1: One-day returns based on adjusted closing price.</em>
+  <em>Figure 2: One-day returns based on adjusted closing price.</em>
 </p>
+Notes:
 
 * Unfortunately, the plot suggests very small to no temporal correlation of the returns. As far as my reading goes, this aligns with empirical findings from finance and is to be expected for a somewhat efficient market. 
 * If there is no temporal correlation in the timeseries, using a gaussian process (or any other method) is pointless: 
@@ -43,4 +45,28 @@ To generate the plot, run `pyton -m main --mode plot_return_ts`
   * "Prediction" for training data yields a result between prior and original observation depending on the assumed noise level. 
 
 Let's look at the data in more detail:
-* ACF, Histogram, PSD ...
+To generate the plot, run `python -m main --mode plot_return_full`
+
+<p align="center">
+  <img src="resources/OneDayReturns_ClosingAdj_AllPlotsFull.png" alt="drawing" width="600"/>
+  <br>
+  <em>Figure 3: Detailed look at one-day returns based on adjusted closing price.</em>
+</p>
+
+Notes:
+
+* signal vs time is identical to Figure 1
+* Autocorrelation shows the autocorrelation function of the signal using the function acovf from statsmodels.tsa.stattools to handle missing data (no trading at the weekend).
+* PSD is the power spectral density estimated using a Lomb-Scargle periodogram taken from astropy.timeseries (again to handle data gaps). The cut-off frequency is set according to the median sampling of the data. 
+* Histogram is simply the histogram of the returns
+* We need to be a bit careful with the interpretation as acf- and psd- calculation require stationarity. 
+  * While the mean of the data is most likely stationary, the variance appears to vary quite a bit. 
+  * There seem to be clusters of higher and clusters of lower variance (=> volatility clustering?). 
+  * We'll look at subsets of the data down the line to make sure nothing funny is going on.
+* The result suggests that there are no temporal correlations in one-day returns:
+  * Autocorrelation drops immediately to zero
+  * PSD is flat(ish) => white noise
+
+In order to make sure to not miss anything, it makes sense to look at some subsets of the data with constant variance. 
+
+
