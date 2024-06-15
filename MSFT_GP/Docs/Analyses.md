@@ -45,6 +45,7 @@ Notes:
   * "Prediction" for training data yields a result between prior and original observation depending on the assumed noise level. 
 
 Let's look at the data in more detail:
+
 To generate the plot, run `python -m main --mode plot_return_full`
 
 <p align="center">
@@ -68,6 +69,7 @@ Notes:
   * PSD is flat(ish) => white noise
 
 In order to make sure to not miss anything, it makes sense to look at some subsets of the data with constant variance. 
+
 To generate the plot, run `python -m main --mode plot_return_full_subs`
 <p align="center">
   <img src="resources/OneDayReturns_ClosingAdj_AllPlotsSubsLowVar.png" alt="drawing" width="400"/> &nbsp;&nbsp;&nbsp;  
