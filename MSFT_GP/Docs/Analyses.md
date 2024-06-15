@@ -68,5 +68,18 @@ Notes:
   * PSD is flat(ish) => white noise
 
 In order to make sure to not miss anything, it makes sense to look at some subsets of the data with constant variance. 
+To generate the plot, run `python -m main --mode plot_return_full_subs`
+<p align="center">
+  <img src="resources/OneDayReturns_ClosingAdj_AllPlotsSubsLowVar.png" alt="drawing" width="400"/> &nbsp;&nbsp;&nbsp;  
+    <img src="resources/OneDayReturns_ClosingAdj_AllPlotsSubsHighVar.png" alt="drawing" width="400"/>
+  <br>
+  <em>Figure 4: Detailed look at subsets of the data assumed stationary.</em>
+</p>
 
+Notes:
+* Timeframe with low variance 1st January 1993 - 31st December 1995 (left)
+* Timeframe with high variance 1st January 2000 - 31st December 2003 (right)
+* Pretty much confirms results in Figure 3 => No autocorrelation in the data
+
+**Bottom line:** Predicting one-day returns using GPs will not work due to the lack of temporal correlation. 
 
