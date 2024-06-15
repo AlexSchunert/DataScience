@@ -120,7 +120,8 @@ def plot_data(data,
               plot_format=".",
               title="",
               mode="Standard",
-              nbins=100):
+              nbins=100,
+              tick_interval_x=10):
     """
     Two-dimensional plot of data columns identified by data_label_y and data_label_x. If mode=="Full", also
     periodogram, histogram, and estimated autocorrelation are shown
@@ -139,17 +140,20 @@ def plot_data(data,
     :type mode: str
     :param nbins: Number of histogram bins in mode == "Full"
     :type nbins: int
+    :param tick_interval_x: Tick on x-axis every tick_interval_x days. Currently not used.
+    :type tick_interval_x: int
 
     :return: ---
     :rtype: None
     """
 
     if mode == "Standard":
-        plt.figure()
-        plt.plot(pd.to_datetime(data[data_label_x]), data[data_label_y], plot_format)
-        plt.xlabel(data_label_x)
-        plt.ylabel(data_label_y)
-        plt.title(title)
+        fig, ax = plt.subplots(1, 1)
+        ax.plot(pd.to_datetime(data[data_label_x]), data[data_label_y], plot_format)
+        ax.set_xlabel(data_label_x)
+        ax.set_ylabel(data_label_y)
+        ax.set_title(title)
+        # Set the date format on the x-axis
         plt.show()
 
     if mode == "Full":
@@ -168,21 +172,22 @@ def plot_data(data,
         auto_cov = auto_cov / auto_cov[0]
         # Plot
         fig, axs = plt.subplots(2, 2)
-        axs[0, 0].plot(t, signal)
+        axs[0, 0].plot(data["dt"].values, signal, plot_format)
         axs[0, 0].set_xlabel("time")
         axs[0, 0].set_ylabel("signal")
         axs[0, 0].set_title("signal vs time")
-        axs[1, 0].plot(f, Pxx)
+
+        axs[1, 0].plot(f, Pxx, plot_format)
         axs[1, 0].set_xlabel("frequency")
         axs[1, 0].set_ylabel("power")
         axs[1, 0].set_title("PSD")
-        axs[0, 1].plot(auto_cov)
+        axs[0, 1].plot(auto_cov, plot_format)
         axs[0, 1].set_xlabel("dt")
         axs[0, 1].set_ylabel("Corr")
         axs[0, 1].set_title("Autocorrelation")
-        axs[1, 1].hist(signal, bins=nbins)
-        axs[1, 1].set_xlabel("data_label_y")
-        axs[1, 1].set_ylabel("F")
+        axs[1, 1].hist(signal, bins=nbins, color="blue")
+        axs[1, 1].set_xlabel(data_label_y)
+        axs[1, 1].set_ylabel("frequency")
         axs[1, 1].set_title("Histogram")
         plt.tight_layout()
         plt.show()
