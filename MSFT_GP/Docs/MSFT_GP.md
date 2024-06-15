@@ -13,7 +13,8 @@ I won't go into any more detail as there is great source material available. Che
 The gp implementation [gaussian_process.py](../gaussian_process.py) is homebrew. It is mostly based on [1.](#references) (lectures 9 and 12 if aI remember correctly). The rest is currently pretty much plot-tools and data-plumbing using pandas. 
 
 ## Usage
-Command line parser in the making. 
+In this folder:
+`python -m main [-h] [--mode MODE]`
 
 ## Analyses
 A log of the [Analyses](Analyses.md) done so far.

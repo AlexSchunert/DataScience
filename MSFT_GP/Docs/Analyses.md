@@ -1,5 +1,5 @@
 ### Initial Example
-
+To generate the plot, run `python -m main --mode init_example`
 <p align="center">
   <img src="resources/PriceHigh_19890601_19891231_HandTuned.png" alt="drawing" width="600"/>
   <br>
