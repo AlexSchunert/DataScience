@@ -27,6 +27,27 @@ def run_initial_example():
     # Fit GP and plot
     fit_gp(raw_data, parameters, prediction_horizon_mode="day", subsample_timeframe=True, prediction_mode="all")
 
+def plot_return_ts():
+    # Parameters
+    parameters = Parameters(start_date="1980-01-01",
+                            end_date="2024-12-31",
+                            tick_interval_x=1000,
+                            use_return=True,
+                            prediction_horizon=10,
+                            target_label="Adj Close")
+    # Load dataset
+    raw_data = load_msft(parameters)
+    raw_data = select_data_time(raw_data, parameters.start_date, parameters.end_date)
+    # Plot
+    plot_data(raw_data,
+              "Return",
+              "Date",
+              plot_format="b",
+              title="One-day returns from adjusted closing stock price",
+              mode="Standard",
+              tick_interval_x=parameters.tick_interval_x)
+
+
 
 def plot_return_full():
     # Parameters
@@ -35,42 +56,59 @@ def plot_return_full():
                             tick_interval_x=1000,
                             use_return=True,
                             prediction_horizon=10,
-                            target_label="High")
+                            target_label="Adj Close")
     # Load dataset
     raw_data = load_msft(parameters)
     raw_data = select_data_time(raw_data, parameters.start_date, parameters.end_date)
-    #
-    if parameters.use_return is True:
-        plot_data(raw_data,
-                  "Return",
-                  "Date",
-                  plot_format="b",
-                  title="Plot highest stock price",
-                  mode="Standard",
-                  tick_interval_x=parameters.tick_interval_x)
-        plot_data(raw_data,
-                  "Return",
-                  "Date",
-                  plot_format="b",
-                  title="Plot highest stock price",
-                  mode="Full",
-                  tick_interval_x=parameters.tick_interval_x)
-    else:
-        plot_data(raw_data,
-                  parameters.target_label,
-                  "Date",
-                  plot_format="b",
-                  title="Plot highest stock price",
-                  mode="Standard",
-                  tick_interval_x=parameters.tick_interval_x)
-        plot_data(raw_data,
-                  parameters.target_label,
-                  "Date",
-                  plot_format="b",
-                  title="Plot highest stock price",
-                  mode="Full",
-                  tick_interval_x=parameters.tick_interval_x)
+    # Plot
+    plot_data(raw_data,
+              "Return",
+              "Date",
+              plot_format="b",
+              title="",
+              mode="Full",
+              tick_interval_x=parameters.tick_interval_x,
+              nlag_acf=360)
 
+def plot_return_full_subs():
+    # Parameters
+    parameters_low = Parameters(start_date="1993-01-01",
+                                end_date="1995-12-31",
+                                tick_interval_x=1000,
+                                use_return=True,
+                                prediction_horizon=10,
+                                target_label="Adj Close")
+
+    parameters_high = Parameters(start_date="2000-01-01",
+                                 end_date="2003-12-31",
+                                 tick_interval_x=1000,
+                                 use_return=True,
+                                 prediction_horizon=10,
+                                 target_label="Adj Close")
+
+    # Load dataset
+    raw_data = load_msft(parameters_low)
+    data_subs_low = select_data_time(raw_data, parameters_low.start_date, parameters_low.end_date)
+    data_subs_high = select_data_time(raw_data, parameters_high.start_date, parameters_high.end_date)
+
+    # Plot
+    plot_data(data_subs_low,
+              "Return",
+              "Date",
+              plot_format="b",
+              title="",
+              mode="Full",
+              tick_interval_x=parameters_low.tick_interval_x,
+              nlag_acf=360)
+
+    plot_data(data_subs_high,
+              "Return",
+              "Date",
+              plot_format="b",
+              title="",
+              mode="Full",
+              tick_interval_x=parameters_high.tick_interval_x,
+              nlag_acf=360)
 
 def make_arg_parser():
     """
@@ -81,7 +119,7 @@ def make_arg_parser():
     """
 
     parser = ArgumentParser()
-    parser.add_argument("--mode", type=str, help="Mode: init_example/plot_return_full", required=False)
+    parser.add_argument("--mode", type=str, help="Mode: init_example/plot_return_ts/plot_return_full/plot_return_full_subs", required=False)
 
     return parser
 
@@ -99,8 +137,12 @@ def main():
 
     if mode == "init_example":
         run_initial_example()
+    elif mode == "plot_return_ts":
+        plot_return_ts()
     elif mode == "plot_return_full":
         plot_return_full()
+    elif mode == "plot_return_full_subs":
+        plot_return_full_subs()
     else:
         print("Invalid mode")
 
