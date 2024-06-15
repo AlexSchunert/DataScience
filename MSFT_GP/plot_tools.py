@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 from scipy.fft import fft, fftfreq
 from scipy.signal import windows, correlate, periodogram
-
+from statsmodels.tsa.stattools import acovf
+from astropy.timeseries import LombScargle
 from utils import autocorrelations_sliding_window
 
 
@@ -121,7 +122,8 @@ def plot_data(data,
               title="",
               mode="Standard",
               nbins=100,
-              tick_interval_x=10):
+              tick_interval_x=10,
+              nlag_acf=180):
     """
     Two-dimensional plot of data columns identified by data_label_y and data_label_x. If mode=="Full", also
     periodogram, histogram, and estimated autocorrelation are shown
@@ -142,6 +144,8 @@ def plot_data(data,
     :type nbins: int
     :param tick_interval_x: Tick on x-axis every tick_interval_x days. Currently not used.
     :type tick_interval_x: int
+    :param nlag_acf: Max lag for autocorrelation fct
+    :type nlag_acf: int
 
     :return: ---
     :rtype: None
@@ -160,15 +164,18 @@ def plot_data(data,
         signal = data[data_label_y].values  # 0.1 * randn(raw_data["Return"].values.shape[0])
 
         # Get signals and time
-        t = data["dt"]
+        t = data["dt"].values
         signal = signal
         # Windowing for spectrum calculation
         window = windows.hamming(len(signal))
         windowed_signal = signal * window
         # Spectrum
-        f, Pxx = periodogram(windowed_signal, 1)
+        # f, Pxx = periodogram(windowed_signal, 1)
+        # Compute Lomb-Scargle periodogram
+        f, Pxx = LombScargle(t.astype(np.float64), signal).autopower(maximum_frequency=0.5 / np.median(np.diff(t)))
         # Autocovariance
-        auto_cov = correlate(signal, signal, mode="full")[len(signal) - 1:] / len(signal)
+        auto_cov = acovf(pd.Series(signal, index=t), missing="drop", nlag=nlag_acf)
+        # auto_cov = correlate(signal, signal, mode="full")[len(signal) - 1:] / len(signal)
         auto_cov = auto_cov / auto_cov[0]
         # Plot
         fig, axs = plt.subplots(2, 2)

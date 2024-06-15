@@ -67,7 +67,8 @@ def plot_return_full():
               plot_format="b",
               title="Plot highest stock price",
               mode="Full",
-              tick_interval_x=parameters.tick_interval_x)
+              tick_interval_x=parameters.tick_interval_x,
+              nlag_acf=360)
 
 
 
