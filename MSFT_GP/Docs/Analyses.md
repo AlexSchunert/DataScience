@@ -87,12 +87,12 @@ Notes:
 
 ### Absolute values of one-day returns
 Analyze absolute values of one-day returns:
-* Volatility clustering: Large changes often follow large changes and small changes often follow small changes. => temporal correlation in the data
-* Is it possible to predict absolute values of returns => proxy for volatility
+* Volatility clustering: Large changes often follow large changes and small changes often follow small changes => implies temporal correlation in the data
+* Is it possible to predict absolute values of returns? => proxy for volatility => volatility prediction is useful for risk assessment
 * Why not squared returns?
   * Data would follow a $\chi^2$-distribution. 
   * For modelling with a GP later down the line, I rather have non-negative gaussian distributed data and deal with or accept the issues from having a non-negativity constraint, compared to $\chi^2$-distributed data.
-  *  Not sure if this is the best course of action. According to ChatGPT using non-negative gaussian data leads to less issues in GPs provided that non-negativity is accounted for. $\chi^2$-distributed data violates the assumption inherent to GPs that likelihood function and prior probability density function (pdf) are gaussian. 
+  *  Not sure if this is the best course of action. According to ChatGPT using non-negative gaussian data leads to less issues in GPs provided that non-negativity is accounted for. $\chi^2$-distributed data violates the assumption inherent to GPs that likelihood function and prior are gaussian. 
 
 To generate the plot, run `python -m main --mode plot_return_ts --return_mode abs` 
 <p align="center">
@@ -112,7 +112,7 @@ To generate the plot, run `python -m main --mode plot_return_full --return_mode 
 Notes:
 * Like Figures 2 and 3 for the absolute values of the returns (adj. closing price)
 * Autocorrelation and PSD suggest that there is some slight temporal correlation 
-* Same as for Figures 2 and 3 => Variance over complete timeframe not constant => Look at subsets
+* Same as for Figures 2 and 3 => Variance over complete timeframe not constant => Look at subsets to have data closer to stationarity
 
 To generate the plot, run `python -m main --mode plot_return_full_subs --return_mode abs`
 <p align="center">
@@ -150,6 +150,6 @@ Notes:
 
 **Next:** 
 * Use GP to predict absolute returns
-* Estimate autocorrelation and use it to tune kernel hyperparameters
+* Estimate autocorrelation for given training data and use it to tune kernel hyperparameters
 * Kernel function?
 
