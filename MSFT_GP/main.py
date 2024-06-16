@@ -50,7 +50,7 @@ def plot_return_ts(return_mode="standard"):
     raw_data = load_msft(parameters)
     raw_data = select_data_time(raw_data, parameters.start_date, parameters.end_date)
     # Plot
-    title = "Abs of returns from adj. closing price"#"One-day returns from adjusted closing stock price"
+    title = "Abs returns from adj. closing price"  # "One-day returns from adjusted closing stock price"
     plot_data(raw_data,
               parameters.target_label,
               "Date",
@@ -113,6 +113,14 @@ def plot_return_full_subs(return_mode="standard"):
                                 target_label="Adj Close",
                                 return_mode=return_mode)
 
+    parameters_low_2 = Parameters(start_date="2011-01-01",
+                                  end_date="2012-12-31",
+                                  tick_interval_x=1000,
+                                  use_return=True,
+                                  prediction_horizon=10,
+                                  target_label="Adj Close",
+                                  return_mode=return_mode)
+
     parameters_high = Parameters(start_date="2000-01-01",
                                  end_date="2003-12-31",
                                  tick_interval_x=1000,
@@ -121,11 +129,23 @@ def plot_return_full_subs(return_mode="standard"):
                                  target_label="Adj Close",
                                  return_mode=return_mode)
 
+    parameters_high_2 = Parameters(start_date="2008-01-01",
+                                   end_date="2009-12-31",
+                                   tick_interval_x=1000,
+                                   use_return=True,
+                                   prediction_horizon=10,
+                                   target_label="Adj Close",
+                                   return_mode=return_mode)
+
     # Load dataset
     raw_data = load_msft(parameters_low)
+    parameters_low_2.target_label = parameters_low.target_label
     parameters_high.target_label = parameters_low.target_label
+    parameters_high_2.target_label = parameters_low.target_label
     data_subs_low = select_data_time(raw_data, parameters_low.start_date, parameters_low.end_date)
+    data_subs_low_2 = select_data_time(raw_data, parameters_low_2.start_date, parameters_low_2.end_date)
     data_subs_high = select_data_time(raw_data, parameters_high.start_date, parameters_high.end_date)
+    data_subs_high_2 = select_data_time(raw_data, parameters_high_2.start_date, parameters_high_2.end_date)
 
     # Plot
     plot_data(data_subs_low,
@@ -137,6 +157,15 @@ def plot_return_full_subs(return_mode="standard"):
               tick_interval_x=parameters_low.tick_interval_x,
               nlag_acf=360)
 
+    plot_data(data_subs_low_2,
+              parameters_low_2.target_label,
+              "Date",
+              plot_format="b",
+              title="",
+              mode="Full",
+              tick_interval_x=parameters_low_2.tick_interval_x,
+              nlag_acf=360)
+
     plot_data(data_subs_high,
               parameters_high.target_label,
               "Date",
@@ -144,6 +173,15 @@ def plot_return_full_subs(return_mode="standard"):
               title="",
               mode="Full",
               tick_interval_x=parameters_high.tick_interval_x,
+              nlag_acf=360)
+
+    plot_data(data_subs_high_2,
+              parameters_high_2.target_label,
+              "Date",
+              plot_format="b",
+              title="",
+              mode="Full",
+              tick_interval_x=parameters_high_2.tick_interval_x,
               nlag_acf=360)
 
 
