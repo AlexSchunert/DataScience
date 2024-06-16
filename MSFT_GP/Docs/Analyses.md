@@ -22,7 +22,7 @@ Notes:
 |$\sigma_{P}$: std of price   |0.01 $    |
 </div>
 
-It should be noted here that those parameters have been chosen to achieve a visually compelling result. If it's of any practical use remains to be seen.
+**Bottom line:** The parameters have been chosen to achieve a visually compelling result. If it's of any practical use remains to be seen. Implementation seems to work as result look plausible. 
 
 ### One-day returns using adjusted closing price
 Start with a plot of the timeseries of one-day returns of the adjusted closing prices
@@ -40,8 +40,8 @@ Notes:
 
 * Unfortunately, the plot suggests very small to no temporal correlation of the returns. As far as my reading goes, this aligns with empirical findings from finance and is to be expected for a somewhat efficient market. 
 * If there is no temporal correlation in the timeseries, using a gaussian process (or any other method) is pointless: 
-  * The predictive covariance becomes diagonal with identical diagonal elements => representer weights are simply the scaled observations
-  * Due to low correlation, the prediction does not even depend on the data and is simply given by the prior 
+  * The predictive covariance becomes diagonal => Representer-weights are simply the scaled observations. In case of existing temporal correlation, each representer-weight is a linear combination of observations with weights depending on the kernel function and the noise level. 
+  * If there is no temporal correlation, the prediction does not even depend on the data and is simply given by the prior 
   * "Prediction" for training data yields a result between prior and original observation depending on the assumed noise level. 
 
 Let's look at the data in more detail:
@@ -56,10 +56,10 @@ To generate the plot, run `python -m main --mode plot_return_full`
 
 Notes:
 
-* signal vs time is identical to Figure 1
+* signal vs time is identical to Figure 2
 * Autocorrelation shows the autocorrelation function of the signal using the function acovf from statsmodels.tsa.stattools to handle missing data (no trading at the weekend).
 * PSD is the power spectral density estimated using a Lomb-Scargle periodogram taken from astropy.timeseries (again to handle data gaps). The cut-off frequency is set according to the median sampling of the data. 
-* Histogram is simply the histogram of the returns
+* Histogram is simply the histogram of the returns.
 * We need to be a bit careful with the interpretation as acf- and psd- calculation require stationarity. 
   * While the mean of the data is most likely stationary, the variance appears to vary quite a bit. 
   * There seem to be clusters of higher and clusters of lower variance (=> volatility clustering?). 
@@ -68,7 +68,7 @@ Notes:
   * Autocorrelation drops immediately to zero
   * PSD is flat(ish) => white noise
 
-In order to make sure to not miss anything, it makes sense to look at some subsets of the data with constant variance. 
+Just to make sure, a detailed looks at two subsets of the data with constant variance. 
 
 To generate the plot, run `python -m main --mode plot_return_full_subs`
 <p align="center">
