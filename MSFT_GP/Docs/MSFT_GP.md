@@ -1,10 +1,10 @@
 # MSFT vs GP
 
 ## Goals
-My current goal is to learn about stock price data and gaussian processes. Thus, I decided to try and fit microsoft stock data using gaussian processes. At least, this was the original idea, as this won't work the way I thought it would (cf. [Analyses](#analyses)). I may decide to stick to the  <a href="/DataSets/Docs/Datasets.md">MSFT dataset</a> but switch to other methods. The goal is not to implement a competitive GP library. There are much better options out there (e.g. [2. in References](#references)).
+My current goal is to learn about stock price data and gaussian processes. Thus, I decided to try and fit Microsoft stock data using gaussian processes. At least, this was the original idea, as this won't work the way I thought it would (cf. [Analyses](#analyses)). I may decide to stick to the  <a href="/DataSets/Docs/Datasets.md">MSFT dataset</a> but switch to other methods. The goal is not to implement a competitive GP library. There are much better options out there (e.g. [2. in References](#references)).
 
 ## What are Gaussian Processes?
-The textbook answer may be something like "A probability distribution over function spaces". In this repo I used it as a tool to fit training data and predict for test data just using the assumed or estimated covariance structure of the data.
+The textbook answer may be something like "A probability distribution over function spaces". In this repo I used it as a tool to fit training data and test the predictions against test data just using the assumed or estimated covariance structure of the data.
 
 I won't go into any more detail as there is great source material available. Check out [1.](#references) and [3.](#references) in references.
 
