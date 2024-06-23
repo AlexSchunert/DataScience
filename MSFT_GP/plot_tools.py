@@ -6,8 +6,8 @@ from scipy.fft import fft, fftfreq
 from scipy.signal import windows, correlate, periodogram
 from statsmodels.tsa.stattools import acovf
 from astropy.timeseries import LombScargle
-from utils import autocorrelations_sliding_window, fit_acf
-
+from utils import autocorrelations_sliding_window
+from acf_tools import fit_acf
 
 def plot_prediction_result(train_data,
                            test_data,
