@@ -1,8 +1,9 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split as train_test_split_sklearn
 from dataclasses import dataclass
-from numpy import ndarray, zeros, abs
+from numpy import ndarray, zeros, abs, exp as np_exp
 from scipy.signal import correlate
+from scipy.optimize import curve_fit
 from kernel_functions import rbf_kernel
 
 
@@ -295,3 +296,23 @@ def autocorrelations_sliding_window(time_series, window_size):
         autocorrelations[i, :] = autocorr
 
     return autocorrelations
+
+
+def fit_acf(dt, correlation):
+    """
+    Fit functions to acf to determine hyperparameters of kernel functions
+
+    :param dt: The lag (=> x)
+    :type dt: ndarray
+    :param correlation: The autocorrelation (=> y)
+    :type correlation: ndarray
+
+    :return: Tuple of (Array of optimized function parameters, Function values for dt)
+    :rtype: (ndarray,ndarray)
+    """
+
+    acf_model = lambda x, l: np_exp(-abs(x) / l)
+    fit_result = curve_fit(acf_model, dt, correlation, p0=(5.0,))
+    pfit_opt = fit_result[0]
+    fct_values = acf_model(dt, pfit_opt[0])
+    return pfit_opt, fct_values

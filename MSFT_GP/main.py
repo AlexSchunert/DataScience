@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from argparse import ArgumentParser
 from utils import load_msft, Parameters, select_data_time
 from analyses import fit_gp, gp_prediction_vs_martingale
-from plot_tools import plot_data, plot_sliding_window_autocorr
+from plot_tools import plot_data, plot_sliding_window_autocorr, plot_acf_fit
 
 
 def run_initial_example():
@@ -185,6 +185,36 @@ def plot_return_full_subs(return_mode="standard"):
               nlag_acf=360)
 
 
+def fit_acf_function_subsets(return_mode="standard"):
+    """
+    Compute acf, fit, and plot for subsets
+
+    :param return_mode: "If "standard", the signed returns are used. If "abs" absolute values of returns are used"
+    :type return_mode: str
+
+    :return: ---
+    :rtype: None
+    """
+    params_hcorr_subs1 = Parameters(start_date="2008-01-01",
+                                    end_date="2009-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode)
+
+    # Load dataset
+    raw_data = load_msft(params_hcorr_subs1)
+    data_hcorr_subs1 = select_data_time(raw_data, params_hcorr_subs1.start_date, params_hcorr_subs1.end_date)
+
+
+    # Plot
+    plot_acf_fit(data_hcorr_subs1,
+              params_hcorr_subs1.target_label,
+              title="",
+              nlag_acf=360)
+
+
 def make_arg_parser():
     """
     Create ArgumentParser object
@@ -233,4 +263,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+    fit_acf_function_subsets(return_mode="abs")
