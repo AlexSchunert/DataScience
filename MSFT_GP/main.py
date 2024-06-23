@@ -204,20 +204,20 @@ def fit_acf_function_subsets(return_mode="standard"):
                                     return_mode=return_mode)
 
     params_lcorr_subs2 = Parameters(start_date="2011-01-01",
-                                  end_date="2012-12-31",
-                                  tick_interval_x=1000,
-                                  use_return=True,
-                                  prediction_horizon=10,
-                                  target_label="Adj Close",
-                                  return_mode=return_mode)
+                                    end_date="2012-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode)
 
     params_hcorr_subs1 = Parameters(start_date="2000-01-01",
-                                 end_date="2003-12-31",
-                                 tick_interval_x=1000,
-                                 use_return=True,
-                                 prediction_horizon=10,
-                                 target_label="Adj Close",
-                                 return_mode=return_mode)
+                                    end_date="2003-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode)
 
     params_hcorr_subs2 = Parameters(start_date="2008-01-01",
                                     end_date="2009-12-31",
@@ -228,7 +228,6 @@ def fit_acf_function_subsets(return_mode="standard"):
                                     return_mode=return_mode)
 
     # Parameters
-
 
     # Load dataset
     raw_data = load_msft(params_lcorr_subs1)
@@ -242,6 +241,7 @@ def fit_acf_function_subsets(return_mode="standard"):
     data_hcorr_subs2 = select_data_time(raw_data, params_hcorr_subs2.start_date, params_hcorr_subs2.end_date)
 
     # Plot
+
     plot_acf_fit(data_lcorr_subs1,
                  params_lcorr_subs1.target_label,
                  title="",
@@ -256,7 +256,16 @@ def fit_acf_function_subsets(return_mode="standard"):
                  params_hcorr_subs1.target_label,
                  title="",
                  nlag_acf=360)
-
+    """
+    plot_data(data_hcorr_subs2,
+              params_hcorr_subs2.target_label,
+              "Date",
+              plot_format="b",
+              title="",
+              mode="Full",
+              tick_interval_x=params_hcorr_subs2.tick_interval_x,
+              nlag_acf=360)
+    """
     plot_acf_fit(data_hcorr_subs2,
                  params_hcorr_subs2.target_label,
                  title="",
