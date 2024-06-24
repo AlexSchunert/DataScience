@@ -1,6 +1,7 @@
 from sklearn.metrics.pairwise import rbf_kernel as rbf_kernel_sklearn
 from pandas import DataFrame
 from numpy import ndarray
+
 # Todo: Remove "dt"
 def rbf_kernel(input_left, input_right, length_scale=10.0, output_scale=15.0):
     """

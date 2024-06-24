@@ -3,7 +3,7 @@ from random import randint
 import pandas as pd
 from datetime import datetime, timedelta
 
-from utils import train_test_split, compute_kernel_matrices, construct_prediction_result, compute_return, \
+from utils import train_test_split, construct_prediction_result, compute_return, \
     select_data_time, Parameters
 from plot_tools import plot_prediction_result, plot_prediction_error_statistic
 from gaussian_process import gp_process
@@ -111,13 +111,13 @@ def fit_gp(data,
     else:
         return
 
-    result = gp_process(data_timeframe_test,
-                        data_timeframe_train,
-                        parameters.target_label,
-                        result_label,
-                        parameters.sigma_used,
-                        parameters.rbf_length_scale,
-                        parameters.rbf_output_scale)
+    result, _ = gp_process(data_timeframe_test,
+                           data_timeframe_train,
+                           parameters.target_label,
+                           result_label,
+                           parameters.sigma_used,
+                           parameters.rbf_length_scale,
+                           parameters.rbf_output_scale)
 
     if plot_results:
         plot_prediction_result(data_timeframe_train,
