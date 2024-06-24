@@ -1,7 +1,9 @@
 from numpy import linalg, eye, sqrt, diagonal, ndarray, empty
 import pandas as pd
 from dataclasses import dataclass
-from utils import compute_kernel_matrices, construct_prediction_result
+from utils import construct_prediction_result
+from kernel_functions import rbf_kernel
+
 
 @dataclass
 class GPPosterior:
@@ -27,7 +29,51 @@ class GPPosterior:
         :rtype: None
         """
         self.repr_weights = repr_weights
-        self. predictive_cov = predictive_cov
+        self.predictive_cov = predictive_cov
+
+
+def compute_kernel_matrices(predict_data,
+                            train_data,
+                            kernel_type,
+                            rbf_length_scale=None,
+                            rbf_output_scale=None,
+                            gp_posterior=None):
+    """
+    Computes all kernel matrices necessary for gp prediction:
+    - k_xx: Kernel matrix of training data
+    - k_zz: Kernel matrix of prediction data
+    - k_zx: Cross kernel matrix of prediction and training data
+
+    :param predict_data: Data used for prediction. Necessary for construction of k_zx and k_zz. Must contain
+                         column labeled "dt"
+    :type predict_data: pd.DataFrame
+    :param train_data: Data used for training. Necessary for construction of k_zx and k_xx. Must contain
+                       column labeled "dt"
+    :type train_data: pd.DataFrame
+    :param kernel_type: Indicates type of kernel function used. Currently "rbf" and gp are supported
+    :type kernel_type: str
+    :param rbf_length_scale: Radial basis function length scale. Mandatory if kernel_type="rbf"
+    :type rbf_length_scale: float
+    :param rbf_output_scale: Radial basis function output scale. Mandatory if kernel_type="rbf"
+    :type rbf_output_scale: float
+    :param gp_posterior: Instance of class GPPosterior. Contains representer weights and pred. Cov.
+    :type gp_posterior: GPPosterior
+
+    :return: Tuple containing k_xx, k_zx, and k_zz
+    :rtype: (ndarray,ndarray,ndarray)
+    """
+
+    if kernel_type == "rbf":
+        if rbf_length_scale is None or rbf_output_scale is None:
+            return
+        else:
+            k_xx = rbf_kernel(train_data, train_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
+            k_zx = rbf_kernel(predict_data, train_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
+            k_zz = rbf_kernel(predict_data, predict_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
+    else:
+        return
+
+    return k_xx, k_zx, k_zz
 
 
 def condition_gpr(train_data, k_xx, col_id, sigma_data):
@@ -128,9 +174,9 @@ def gp_process(test_data,
     # Fit gp
     k_xx, k_zx, k_zz = compute_kernel_matrices(test_data,
                                                train_data,
-                                               rbf_length_scale,
-                                               rbf_output_scale,
-                                               "rbf")
+                                               "rbf",
+                                               rbf_length_scale=rbf_length_scale,
+                                               rbf_output_scale=rbf_output_scale)
     # condition on data
     alpha, predictive_cov = condition_gpr(train_data, k_xx, target_quantity_idx, sigma_measurement)
     # predict for all data

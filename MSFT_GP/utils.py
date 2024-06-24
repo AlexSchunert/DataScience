@@ -193,40 +193,6 @@ def train_test_split(data, test_data_size):
     return train_data, test_data
 
 
-def compute_kernel_matrices(predict_data, train_data, rbf_length_scale, rbf_output_scale, kernel_type="rbf"):
-    """
-    Computes all kernel matrices necessary for gp prediction:
-    - k_xx: Kernel matrix of training data
-    - k_zz: Kernel matrix of prediction data
-    - k_zx: Cross kernel matrix of prediction and training data
-
-    :param predict_data: Data used for prediction. Necessary for construction of k_zx and k_zz. Must contain
-                         column labeled "dt"
-    :type predict_data: pd.DataFrame
-    :param train_data: Data used for training. Necessary for construction of k_zx and k_xx. Must contain
-                       column labeled "dt"
-    :type train_data: pd.DataFrame
-    :param rbf_length_scale: Radial basis function length scale
-    :type rbf_length_scale: float
-    :param rbf_output_scale: Radial basis function output scale
-    :type rbf_output_scale: float
-    :param kernel_type: Indicates type of kernel function used. Currently only "rbf" is supported
-    :type kernel_type: str
-
-    :return: Tuple containing k_xx, k_zx, and k_zz
-    :rtype: (ndarray,ndarray,ndarray)
-    """
-
-    if kernel_type == "rbf":
-        k_xx = rbf_kernel(train_data, train_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
-        k_zx = rbf_kernel(predict_data, train_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
-        k_zz = rbf_kernel(predict_data, predict_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
-    else:
-        return
-
-    return k_xx, k_zx, k_zz
-
-
 def construct_prediction_result(data, mu_predicted, std_predicted, result_label="prediction"):
     """
     Constructs result DataFrame from predicted gp mean and standard deviation.
