@@ -256,16 +256,7 @@ def fit_acf_function_subsets(return_mode="standard"):
                  params_hcorr_subs1.target_label,
                  title="",
                  nlag_acf=360)
-    """
-    plot_data(data_hcorr_subs2,
-              params_hcorr_subs2.target_label,
-              "Date",
-              plot_format="b",
-              title="",
-              mode="Full",
-              tick_interval_x=params_hcorr_subs2.tick_interval_x,
-              nlag_acf=360)
-    """
+
     plot_acf_fit(data_hcorr_subs2,
                  params_hcorr_subs2.target_label,
                  title="",
