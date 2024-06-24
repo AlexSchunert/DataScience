@@ -1,7 +1,33 @@
-from numpy import linalg, eye, sqrt, diagonal, ndarray
+from numpy import linalg, eye, sqrt, diagonal, ndarray, empty
 import pandas as pd
-
+from dataclasses import dataclass
 from utils import compute_kernel_matrices, construct_prediction_result
+
+@dataclass
+class GPPosterior:
+    """
+    Contains the posterior of a gp given by represented weights and predictive covariance
+    """
+
+    repr_weights: ndarray = empty,
+    predictive_cov: ndarray = empty
+
+    def __int__(self,
+                repr_weights,
+                predictive_cov):
+        """
+        Inits GPPosterior
+
+        :param repr_weights: Representer weights determined during conditioning
+        :type repr_weights: ndarray
+        :param predictive_cov: Predictive covariance determined during conditioning
+        :type predictive_cov: ndarray
+
+        :return: ---
+        :rtype: None
+        """
+        self.repr_weights = repr_weights
+        self. predictive_cov = predictive_cov
 
 
 def condition_gpr(train_data, k_xx, col_id, sigma_data):
@@ -113,4 +139,6 @@ def gp_process(test_data,
     result = construct_prediction_result(test_data, mu_predicted, std_prediction,
                                          result_label=result_label)
 
-    return result
+    gp_posterior = GPPosterior(alpha, predictive_cov)
+
+    return result, gp_posterior

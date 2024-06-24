@@ -25,13 +25,13 @@ def fit_acf(dt, correlation):
     sigma_measurement = 0.05
     rbf_length_scale = 180.0
     rbf_output_scale = 1.0
-    gp_result = gp_process(test_data,
-                           test_data,
-                           target_quantity_idx,
-                           result_label,
-                           sigma_measurement,
-                           rbf_length_scale,
-                           rbf_output_scale)
+    gp_result, gp_posterior = gp_process(test_data,
+                                         test_data,
+                                         target_quantity_idx,
+                                         result_label,
+                                         sigma_measurement,
+                                         rbf_length_scale,
+                                         rbf_output_scale)
 
     # Exponential
     # acf_model = lambda x, x0, l: np_exp(-abs(x-x0) / l)
