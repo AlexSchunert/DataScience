@@ -262,12 +262,14 @@ def plot_acf_fit(data,
 
     # Autocovariance
     auto_cov = acovf(pd.Series(signal, index=t), missing="drop", nlag=nlag_acf)
-    # auto_cov = correlate(signal, signal, mode="full")[len(signal) - 1:] / len(signal)
-    auto_cov = auto_cov / auto_cov[0]
-    lag_acf = np.arange(auto_cov.shape[0])
-    pfit_opt, fct_values = fit_acf(lag_acf, auto_cov)
+    auto_corr = auto_cov / auto_cov[0]
+    lag_acf = np.arange(auto_corr.shape[0])
+    pfit_opt, fct_values = fit_acf(lag_acf, auto_corr)
 
-    plt.plot(lag_acf, auto_cov,'b')
-    plt.plot(lag_acf, fct_values, 'r')
+    plt.plot(lag_acf, auto_corr,'b', label="ACF")
+    plt.plot(lag_acf, fct_values, 'r', label="GP")
+    plt.xlabel("dt")
+    plt.ylabel("Correlation")
+    plt.legend(loc='upper right')
 
     plt.show()
