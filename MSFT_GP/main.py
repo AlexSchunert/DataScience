@@ -273,7 +273,8 @@ def make_arg_parser():
 
     parser = ArgumentParser()
     parser.add_argument("--mode", type=str,
-                        help="Mode: init_example/plot_return_ts/plot_return_full/plot_return_full_subs", required=False)
+                        help="Mode: init_example/plot_return_ts/plot_return_full/plot_return_full_subs/plot_acf_subs",
+                        required=False)
     parser.add_argument("--return_mode", type=str,
                         help="If not set or set to standard, returns are used. If set to abs, abs returns are used")
     return parser
@@ -303,6 +304,8 @@ def main():
         plot_return_full(return_mode=return_mode)
     elif mode == "plot_return_full_subs":
         plot_return_full_subs(return_mode=return_mode)
+    elif mode == "plot_acf_subs":
+        fit_acf_function_subsets(return_mode=return_mode)
     else:
         print("Invalid mode")
 
@@ -311,5 +314,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-    fit_acf_function_subsets(return_mode="abs")
+    main()
