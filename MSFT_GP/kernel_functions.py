@@ -69,6 +69,23 @@ def gp_kernel(input_left, input_right, gp_posterior):
         return
 
 
+    if gp_posterior.kernel_fct[0] == "rbf":
+
+        rbf_length_scale = gp_posterior.kernel_fct[1]
+        rbf_output_scale = gp_posterior.kernel_fct[2]
+        pass
+        # Calculate possible lags in data
+
+        """
+        k_zx = rbf_kernel(input_left, input_right, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
+        k_zz = rbf_kernel(input_left, input_right, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
+        mean_prediction, std_prediction = predict_gpr(gp_posterior.repr_weights, 
+                                                      k_zx, 
+                                                      k_zz, 
+                                                      gp_posterior.predictive_cov)
+        """
+    else:
+        return
 
 
 def compute_kernel_matrices(predict_data,

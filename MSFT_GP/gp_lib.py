@@ -8,11 +8,15 @@ class GPPosterior:
     """
 
     repr_weights: ndarray = empty,
-    predictive_cov: ndarray = empty
+    predictive_cov: ndarray = empty,
+    x_training: ndarray = empty,
+    kernel_fct: list = [],
 
     def __int__(self,
                 repr_weights,
-                predictive_cov):
+                predictive_cov,
+                x_training,
+                kernel_fct):
         """
         Inits GPPosterior
 
@@ -20,12 +24,17 @@ class GPPosterior:
         :type repr_weights: ndarray
         :param predictive_cov: Predictive covariance determined during conditioning
         :type predictive_cov: ndarray
+        :param x_training: X-Values of training data. Necessary to calculate kernel matrices
+        :type x_training: ndarray
+        :param kernel_fct: Contains all necessary information about used kernel function.
+        :type kernel_fct: list
 
-        :return: ---
-        :rtype: None
+        :return: Created GPPosterior
+        :rtype: GPPosterior
         """
         self.repr_weights = repr_weights
         self.predictive_cov = predictive_cov
+        self.kernel_fct = kernel_fct
 
 def condition_gpr(train_data, k_xx, col_id, sigma_data):
     """

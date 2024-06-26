@@ -8,6 +8,7 @@ from statsmodels.tsa.stattools import acovf
 from astropy.timeseries import LombScargle
 from utils import autocorrelations_sliding_window
 from acf_tools import fit_acf
+from kernel_functions import gp_kernel
 
 def plot_prediction_result(train_data,
                            test_data,
@@ -265,6 +266,7 @@ def plot_acf_fit(data,
     auto_corr = auto_cov / auto_cov[0]
     lag_acf = np.arange(auto_corr.shape[0])
     gp_result, gp_posterior = fit_acf(lag_acf, auto_corr)
+    gp_kernel(data, data, gp_posterior)
 
     plt.plot(lag_acf, auto_corr,'b', label="ACF")
     plt.plot(lag_acf, gp_result["acf"], 'r', label="GP")

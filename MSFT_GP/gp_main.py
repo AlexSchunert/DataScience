@@ -4,7 +4,6 @@ from kernel_functions import compute_kernel_matrices
 from gp_lib import condition_gpr, predict_gpr, GPPosterior
 
 
-
 # Todo: Add optional input time_index to generalize "dt"
 # Todo: Generalize kernel function
 def gp_process(test_data,
@@ -55,6 +54,8 @@ def gp_process(test_data,
     result = construct_prediction_result(test_data, mu_predicted, std_prediction,
                                          result_label=result_label)
 
-    gp_posterior = GPPosterior(alpha, predictive_cov)
+    kernel_fct = ["rbf", rbf_length_scale, rbf_output_scale]
+    x_training = train_data.loc[:,["dt"]]
+    gp_posterior = GPPosterior(alpha, predictive_cov, x_training, kernel_fct)
 
     return result, gp_posterior
