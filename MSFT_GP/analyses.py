@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from utils import train_test_split, construct_prediction_result, compute_return, \
     select_data_time, Parameters
 from plot_tools import plot_prediction_result, plot_prediction_error_statistic
-from gaussian_process import gp_process
+from gp_main import gp_process
 
 
 def fit_gp(data,

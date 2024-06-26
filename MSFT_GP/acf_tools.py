@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from gaussian_process import gp_process
+from gp_main import gp_process
 from scipy.optimize import curve_fit
 
 

@@ -314,4 +314,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    fit_acf_function_subsets(return_mode="abs")
+    #main()
