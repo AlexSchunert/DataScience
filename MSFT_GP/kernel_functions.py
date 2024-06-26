@@ -1,7 +1,8 @@
 from sklearn.metrics.pairwise import rbf_kernel as rbf_kernel_sklearn
 from pandas import DataFrame
-from numpy import ndarray
+from numpy import ndarray, meshgrid, abs, unique, where
 from gp_lib import GPPosterior, predict_gpr
+
 
 # Todo: Remove "dt"
 def rbf_kernel(input_left, input_right, length_scale=10.0, output_scale=15.0):
@@ -40,6 +41,7 @@ def rbf_kernel(input_left, input_right, length_scale=10.0, output_scale=15.0):
 
     return k_ab
 
+
 def gp_kernel(input_left, input_right, gp_posterior):
     """
     Calculates the values of kernel estimated from acf fit with gp
@@ -68,22 +70,38 @@ def gp_kernel(input_left, input_right, gp_posterior):
     else:
         return
 
-
     if gp_posterior.kernel_fct[0] == "rbf":
 
         rbf_length_scale = gp_posterior.kernel_fct[1]
         rbf_output_scale = gp_posterior.kernel_fct[2]
-        pass
+
         # Calculate possible lags in data
+        A, B = meshgrid(a, b)
+        differences = unique(abs(A - B).reshape(-1))
+        x_test = DataFrame({
+            "dt": differences
+        })
+
+        k_zx = rbf_kernel(x_test, gp_posterior.x_training, length_scale=rbf_length_scale,
+                          output_scale=rbf_output_scale)
+        k_zz = rbf_kernel(x_test, x_test, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
+        kernel_matrix_values, _ = predict_gpr(gp_posterior.repr_weights,
+                                              k_zx,
+                                              k_zz,
+                                              gp_posterior.predictive_cov)
+
+        # Construct kernel matrix from kernel_matrix_values and x_test
+
+        #where(x_test["dt"].values == abs(a[0] - b[3]))[0]
 
         """
-        k_zx = rbf_kernel(input_left, input_right, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
-        k_zz = rbf_kernel(input_left, input_right, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
-        mean_prediction, std_prediction = predict_gpr(gp_posterior.repr_weights, 
-                                                      k_zx, 
-                                                      k_zz, 
-                                                      gp_posterior.predictive_cov)
+        from matplotlib import pyplot as plt
+        plt.plot(mean_prediction)
+        plt.show()
         """
+
+        pass
+
     else:
         return
 

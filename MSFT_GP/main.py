@@ -245,22 +245,22 @@ def fit_acf_function_subsets(return_mode="standard"):
     plot_acf_fit(data_lcorr_subs1,
                  params_lcorr_subs1.target_label,
                  title="",
-                 nlag_acf=360)
+                 nlag_acf=data_lcorr_subs1["dt"].shape[0]-1)
 
     plot_acf_fit(data_lcorr_subs2,
                  params_lcorr_subs2.target_label,
                  title="",
-                 nlag_acf=360)
+                 nlag_acf=data_lcorr_subs2["dt"].shape[0]-1)
 
     plot_acf_fit(data_hcorr_subs1,
                  params_hcorr_subs1.target_label,
                  title="",
-                 nlag_acf=360)
+                 nlag_acf=data_hcorr_subs1["dt"].shape[0]-1)
 
     plot_acf_fit(data_hcorr_subs2,
                  params_hcorr_subs2.target_label,
                  title="",
-                 nlag_acf=360)
+                 nlag_acf=data_hcorr_subs2["dt"].shape[0]-1)
 
 
 def make_arg_parser():
