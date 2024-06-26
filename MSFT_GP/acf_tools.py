@@ -58,6 +58,6 @@ def fit_acf(dt, correlation):
     # fct_values = acf_model(dt, pfit_opt[0], pfit_opt[1], pfit_opt[2])
     # print(pfit_opt)
 
-    pfit_opt = []
-    fct_values = gp_result["acf"]
-    return pfit_opt, fct_values
+    #pfit_opt = []
+    #fct_values = gp_result["acf"]
+    return gp_result, gp_posterior
