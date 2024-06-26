@@ -264,10 +264,10 @@ def plot_acf_fit(data,
     auto_cov = acovf(pd.Series(signal, index=t), missing="drop", nlag=nlag_acf)
     auto_corr = auto_cov / auto_cov[0]
     lag_acf = np.arange(auto_corr.shape[0])
-    pfit_opt, fct_values = fit_acf(lag_acf, auto_corr)
+    gp_result, gp_posterior = fit_acf(lag_acf, auto_corr)
 
     plt.plot(lag_acf, auto_corr,'b', label="ACF")
-    plt.plot(lag_acf, fct_values, 'r', label="GP")
+    plt.plot(lag_acf, gp_result["acf"], 'r', label="GP")
     plt.xlabel("dt")
     plt.ylabel("Correlation")
     plt.legend(loc='upper right')
