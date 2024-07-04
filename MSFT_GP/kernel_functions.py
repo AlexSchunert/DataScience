@@ -1,8 +1,8 @@
 from sklearn.metrics.pairwise import rbf_kernel as rbf_kernel_sklearn
 from pandas import DataFrame
-from numpy import ndarray, meshgrid, abs, unique, where
+from numpy import ndarray, meshgrid, abs, unique, where, squeeze
 from gp_lib import GPPosterior, predict_gpr
-
+from utils import create_index_matrix
 
 # Todo: Remove "dt"
 def rbf_kernel(input_left, input_right, length_scale=10.0, output_scale=15.0):
@@ -77,9 +77,10 @@ def gp_kernel(input_left, input_right, gp_posterior):
 
         # Calculate possible lags in data
         A, B = meshgrid(a, b)
-        differences = unique(abs(A - B).reshape(-1))
+        abs_diff_mat = abs(A - B)
+        abs_diff_unique_vec = unique(abs_diff_mat.reshape(-1))
         x_test = DataFrame({
-            "dt": differences
+            "dt": abs_diff_unique_vec
         })
 
         k_zx = rbf_kernel(x_test, gp_posterior.x_training, length_scale=rbf_length_scale,
@@ -91,19 +92,13 @@ def gp_kernel(input_left, input_right, gp_posterior):
                                               gp_posterior.predictive_cov)
 
         # Construct kernel matrix from kernel_matrix_values and x_test
-
-        #where(x_test["dt"].values == abs(a[0] - b[3]))[0]
-
-        """
-        from matplotlib import pyplot as plt
-        plt.plot(mean_prediction)
-        plt.show()
-        """
-
-        pass
+        idx_mat = create_index_matrix(abs_diff_mat, abs_diff_unique_vec)
+        k_ab = squeeze(kernel_matrix_values[idx_mat])
 
     else:
-        return
+        k_ab = None
+
+    return k_ab
 
 
 def compute_kernel_matrices(predict_data,

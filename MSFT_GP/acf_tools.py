@@ -2,6 +2,36 @@ import pandas as pd
 import numpy as np
 from gp_main import gp_process
 from scipy.optimize import curve_fit
+from astropy.timeseries import LombScargle
+
+
+def compute_acf(time, signal, max_lag=None):
+    """
+    Computes acf of signal. Irregular sampling and missing data is handled using time vector
+
+    :param time: The timestamps of the signal values
+    :type time: ndarray
+    :param signal: The signal values for which acf is calculated
+    :type signal: ndarray
+    :param max_lag: Max lag in days
+    :type max_lag: float
+
+    :return: Tuple of lag and autocovariance
+    :rtype: tuple(ndarray,ndarray)
+    """
+    if max_lag is None:
+        max_lag = time.max() - time.min()
+
+    frequency, power = LombScargle(time, signal).autopower(maximum_frequency=0.5 / np.median(np.diff(time)))
+
+    # Convert the power spectral density to the autocorrelation function
+    acf = np.fft.irfft(power)
+    lags = np.fft.fftfreq(len(acf), d=(frequency[1] - frequency[0]))
+    idx = np.where((lags >= 0) & (lags <= max_lag))[0]
+    acf = acf[idx]
+    lags = lags[idx]
+
+    return lags, acf
 
 
 def fit_acf(dt, correlation):
@@ -58,6 +88,6 @@ def fit_acf(dt, correlation):
     # fct_values = acf_model(dt, pfit_opt[0], pfit_opt[1], pfit_opt[2])
     # print(pfit_opt)
 
-    #pfit_opt = []
-    #fct_values = gp_result["acf"]
+    # pfit_opt = []
+    # fct_values = gp_result["acf"]
     return gp_result, gp_posterior

@@ -1,7 +1,8 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split as train_test_split_sklearn
 from dataclasses import dataclass
-from numpy import ndarray, zeros, abs, exp as np_exp, sin, empty
+from numpy import ndarray, zeros, abs, exp as np_exp, sin, empty, zeros_like, allclose, all
+from numpy.linalg import eigh
 from scipy.signal import correlate
 
 
@@ -268,3 +269,57 @@ def autocorrelations_sliding_window(time_series, window_size):
         autocorrelations[i, :] = autocorr
 
     return autocorrelations
+
+
+def create_index_matrix(M, v):
+    """
+    Returns an index matrix Idx for a matrix M and a vector v such that v(I_ij)==M_ij. Note that v must contain all
+    elements in M exactly once
+    
+    :param M: Matrix M
+    :type M: ndarray
+    :param v: Vector v
+    :type v: ndarray
+
+    :return: Index matrix Idx
+    :rtype: ndarray
+    """
+
+    # Create a dictionary that maps each value in v to its index
+    value_to_index = {value: idx for idx, value in enumerate(v)}
+
+    # Initialize the index matrix I with the same shape as M
+    Idx = zeros_like(M, dtype=int)
+
+    # Fill the index matrix with the corresponding indices from v
+    for i in range(M.shape[0]):
+        for j in range(M.shape[1]):
+            Idx[i, j] = value_to_index[M[i, j]]
+
+    return Idx
+
+
+def is_positive_semidefinite(matrix):
+    """
+    Checks if input matrix is positive semi-definite
+
+    :param matrix: Matrix to be checked
+    :type matrix: ndarray
+
+    :return: True if matrix is positive-semi-definite, false otherwise
+    :rtype: bool
+    """
+    # Check if matrix is square
+    rows, cols = matrix.shape
+    if rows != cols:
+        return False
+
+    # Check if matrix is symmetric
+    if not allclose(matrix, matrix.T):
+        return False
+
+    # Compute eigenvalues
+    eigenvalues, _ = eigh(matrix)
+
+    # Check if all eigenvalues are non-negative
+    return all(eigenvalues >= 0)
