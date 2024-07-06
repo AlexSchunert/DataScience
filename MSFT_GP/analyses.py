@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from utils import train_test_split, construct_prediction_result, compute_return, \
     select_data_time, Parameters
-from plot_tools import plot_prediction_result, plot_prediction_error_statistic
+from plot_tools import plot_prediction_result, plot_prediction_error_statistic, plot_gp_analyses
 from gp_main import gp_process
 from acf_tools import compute_gp_kernel_posterior
 
@@ -136,15 +136,15 @@ def fit_gp(data,
         return
 
     if plot_results:
-        plot_prediction_result(data_timeframe_train,
-                               data_timeframe_test,
-                               result,
-                               parameters.target_label,
-                               result_idx=result_label,
-                               plot_shading_mode=parameters.plot_shading_mode,
-                               tick_interval_x=parameters.tick_interval_x,
-                               plot_line_tr_data=parameters.plot_line_tr_data,
-                               plot_line_test_data=parameters.plot_line_test_data)
+        plot_gp_analyses(data_timeframe_train,
+                         data_timeframe_test,
+                         result,
+                         parameters.target_label,
+                         result_idx=result_label,
+                         plot_shading_mode=parameters.plot_shading_mode,
+                         tick_interval_x=parameters.tick_interval_x,
+                         plot_line_tr_data=parameters.plot_line_tr_data,
+                         plot_line_test_data=parameters.plot_line_test_data)
 
     return result
 

@@ -329,21 +329,11 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
     data_hcorr_subs1 = select_data_time(raw_data, params_hcorr_subs1.start_date, params_hcorr_subs1.end_date)
     data_hcorr_subs2 = select_data_time(raw_data, params_hcorr_subs2.start_date, params_hcorr_subs2.end_date)
 
-    plot_acf_fit(data_lcorr_subs1,
-                 params_lcorr_subs1.target_label,
-                 title="",
-                 nlag_acf=data_lcorr_subs1["dt"].shape[0]-1)
-
     fit_gp(data_lcorr_subs1,
            params_lcorr_subs1,
            prediction_horizon_mode="day",
            subsample_timeframe=True,
            prediction_mode="all")
-
-    plot_acf_fit(data_lcorr_subs2,
-                 params_lcorr_subs2.target_label,
-                 title="",
-                 nlag_acf=data_lcorr_subs2["dt"].shape[0]-1)
 
     fit_gp(data_lcorr_subs2,
            params_lcorr_subs2,
@@ -351,21 +341,11 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
            subsample_timeframe=True,
            prediction_mode="all")
 
-    plot_acf_fit(data_hcorr_subs1,
-                 params_hcorr_subs1.target_label,
-                 title="",
-                 nlag_acf=data_hcorr_subs1["dt"].shape[0]-1)
-
     fit_gp(data_hcorr_subs1,
            params_hcorr_subs1,
            prediction_horizon_mode="day",
            subsample_timeframe=True,
            prediction_mode="all")
-
-    plot_acf_fit(data_hcorr_subs2,
-                 params_hcorr_subs2.target_label,
-                 title="",
-                 nlag_acf=data_hcorr_subs2["dt"].shape[0]-1)
 
     fit_gp(data_hcorr_subs2,
            params_hcorr_subs2,
