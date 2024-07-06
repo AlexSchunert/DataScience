@@ -280,7 +280,8 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
                                     target_label="Adj Close",
                                     return_mode=return_mode,
                                     kernel_fct="gp_kernel",
-                                    test_data_size=0.1)
+                                    test_data_size=0.1,
+                                    plot_line_tr_data=True)
 
     params_lcorr_subs2 = Parameters(start_date="2011-01-01",
                                     end_date="2012-12-31",
@@ -290,7 +291,8 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
                                     target_label="Adj Close",
                                     return_mode=return_mode,
                                     kernel_fct="gp_kernel",
-                                    test_data_size=0.1)
+                                    test_data_size=0.1,
+                                    plot_line_tr_data=True)
 
     params_hcorr_subs1 = Parameters(start_date="2000-01-01",
                                     end_date="2003-12-31",
@@ -300,7 +302,8 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
                                     target_label="Adj Close",
                                     return_mode=return_mode,
                                     kernel_fct="gp_kernel",
-                                    test_data_size=0.1)
+                                    test_data_size=0.1,
+                                    plot_line_tr_data=True)
 
     params_hcorr_subs2 = Parameters(start_date="2008-01-01",
                                     end_date="2009-12-31",
@@ -310,7 +313,8 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
                                     target_label="Adj Close",
                                     return_mode=return_mode,
                                     kernel_fct="gp_kernel",
-                                    test_data_size=0.1)
+                                    test_data_size=0.1,
+                                    plot_line_tr_data=True)
 
     # Parameters
 

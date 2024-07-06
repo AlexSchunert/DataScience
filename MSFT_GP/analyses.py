@@ -9,6 +9,7 @@ from plot_tools import plot_prediction_result, plot_prediction_error_statistic
 from gp_main import gp_process
 from acf_tools import compute_gp_kernel_posterior
 
+
 def fit_gp(data,
            parameters,
            subsample_timeframe=False,
@@ -141,7 +142,9 @@ def fit_gp(data,
                                parameters.target_label,
                                result_idx=result_label,
                                plot_shading_mode=parameters.plot_shading_mode,
-                               tick_interval_x=parameters.tick_interval_x)
+                               tick_interval_x=parameters.tick_interval_x,
+                               plot_line_tr_data=parameters.plot_line_tr_data,
+                               plot_line_test_data=parameters.plot_line_test_data)
 
     return result
 

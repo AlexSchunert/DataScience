@@ -23,18 +23,21 @@ def compute_gp_kernel_posterior(data,
     signal = data[data_label_y].values
     # Get signals and time
     t = data["dt"].values
-
+    # Autocovariance
     lag_acf, auto_cov = compute_acf(t, signal)
-    auto_corr = auto_cov / auto_cov[0]
-    gp_result, gp_posterior = fit_acf(lag_acf, auto_corr)
+    # We need to rescale such that acf[0] = var(signal)
+    auto_cov = auto_cov / auto_cov[0] * signal.var()
+    # Fit gp_kernel to acf
+    gp_result, gp_posterior = fit_acf(lag_acf, auto_cov)
 
     # Estimate noise std
     # Since m_i = s_i + n_i => E[m_i*m_(i+k)]=E[s_i*s_(i+k)]+E[s_i*n_(i+k)]+E[s_(i+k)*n_i]E[n_i*n_(i+k)]
     # For k=0 => E[m_i*m_i]=E[s_i*s_i]+E[n_i*n_i]=sigma_s^2+sigma_n^2
     # E[m_i*m_i]
     var_m = signal.var()
-    # variance due to signal E[s_i*s_i]
-    var_s = gp_result.loc[gp_result["dt"] == 0, "acf"].values[0] * var_m
+    # variance due to signal E[s_i*s_i] -> We use the value estimated by the gp_kernel as estimate => assuming a somehow
+    # smooth acf
+    var_s = gp_result.loc[gp_result["dt"] == 0, "acf"].values[0]
     # variance due to noise
     var_n = var_m - var_s
     std_n = np.sqrt(var_n)

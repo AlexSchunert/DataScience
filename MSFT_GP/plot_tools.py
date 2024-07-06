@@ -17,7 +17,9 @@ def plot_prediction_result(train_data,
                            target_quantity_idx,
                            result_idx="prediction",
                            plot_shading_mode="2-sigma",
-                           tick_interval_x=10):
+                           tick_interval_x=10,
+                           plot_line_tr_data=False,
+                           plot_line_test_data=False):
     """
     Plots the result of a gp prediction.
 
@@ -38,6 +40,10 @@ def plot_prediction_result(train_data,
     :type plot_shading_mode: str
     :param tick_interval_x: Tick on x-axis every tick_interval_x days
     :type tick_interval_x: int
+    :param plot_line_tr_data: If true, plot training data as line
+    :type plot_line_tr_data: bool
+    :param plot_line_test_data: If true, plot test data as line
+    :type plot_line_test_data: bool
 
     :return: ---
     :rtype: None
@@ -45,8 +51,16 @@ def plot_prediction_result(train_data,
 
     fig, ax = plt.subplots()
     # Plot data
-    plt.plot(pd.to_datetime(test_data["Date"]), test_data[target_quantity_idx], 'b.', label="Test data")
-    plt.plot(pd.to_datetime(train_data["Date"]), train_data[target_quantity_idx], 'g*', label="Train data")
+    if plot_line_test_data:
+        plt.plot(pd.to_datetime(test_data["Date"]), test_data[target_quantity_idx], 'b-', label="Test data")
+    else:
+        plt.plot(pd.to_datetime(test_data["Date"]), test_data[target_quantity_idx], 'b.', label="Test data")
+
+    if plot_line_tr_data:
+        plt.plot(pd.to_datetime(train_data["Date"]), train_data[target_quantity_idx], 'g-', label="Train data")
+    else:
+        plt.plot(pd.to_datetime(train_data["Date"]), train_data[target_quantity_idx], 'g*', label="Train data")
+
     # Plot prediction
     plt.plot(pd.to_datetime(result["Date"]), result[result_idx], 'g-', label="GP mean-fct.")
     # Plot standard deviation
