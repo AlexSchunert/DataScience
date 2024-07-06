@@ -268,8 +268,8 @@ def plot_acf_fit(data,
     auto_corr = auto_cov / auto_cov[0]
     gp_result, gp_posterior = fit_acf(lag_acf, auto_corr)
     #k_ab = gp_kernel(data, data.iloc[200:300], gp_posterior)
-    k_ab = gp_kernel(data, data, gp_posterior)
-    print(is_positive_semidefinite(k_ab))
+    #k_ab = gp_kernel(data, data, gp_posterior)
+    #print(is_positive_semidefinite(k_ab))
     plt.plot(lag_acf, auto_corr, 'b', label="ACF")
     plt.plot(lag_acf, gp_result["acf"], 'r', label="GP")
     plt.xlabel("dt")
