@@ -27,6 +27,7 @@ class Parameters:
     num_iter_error_stat: int
     num_data_points_gp_fit: int
     histogram_num_bins: int
+    kernel_fct: str
 
     def __init__(self,
                  test_data_size=0.5,
@@ -45,21 +46,22 @@ class Parameters:
                  num_iter_error_stat=1000,
                  num_data_points_gp_fit=10,
                  histogram_num_bins=100,
-                 tick_interval_x=10):
+                 tick_interval_x=10,
+                 kernel_fct="rbf"):
         """
         Initialises the parameter dataclass
 
         :param test_data_size: Portion of test data in case subsampling of input time frame is enabled
         :type test_data_size: float
-        :param rbf_length_scale: Length scale of radial basis function
+        :param rbf_length_scale: Length scale of radial basis function. Not used if kernel_fct!="rbf"
         :type rbf_length_scale: float
-        :param rbf_output_scale: Output Scale of radial basis function
+        :param rbf_output_scale: Output Scale of radial basis function. Not used if kernel_fct!="rbf"
         :type rbf_output_scale: float
-        :param sigma_price: Standard deviation of price
+        :param sigma_price: Standard deviation of price. Not used if kernel_fct=="gp_kernel"
         :type sigma_price: float
-        :param sigma_return: Standard deviation of return
+        :param sigma_return: Standard deviation of return. Not used if kernel_fct=="gp_kernel"
         :type sigma_return: float
-        :param sigma_used: Either set to sigma_price or sigma_return depending on use_return
+        :param sigma_used: Either set to sigma_price or sigma_return depending on use_return. Not used if kernel_fct=="gp_kernel"
         :type sigma_used: float
         :param target_label: String label of target quantity.
         :type target_label: str
@@ -89,6 +91,8 @@ class Parameters:
         :type histogram_num_bins: int
         :param tick_interval_x: Tick on x-axis every tick_interval_x days
         :type tick_interval_x: int
+        :param kernel_fct: Type of kernel function to be used. Currently, either "rbf" or "gp_kernel"
+        :type kernel_fct: str
 
         :return: The created parameters dataclass
         :rtype: Parameters
@@ -110,6 +114,7 @@ class Parameters:
         self.num_data_points_gp_fit = num_data_points_gp_fit
         self.histogram_num_bins = histogram_num_bins
         self.tick_interval_x = tick_interval_x
+        self.kernel_fct = kernel_fct
 
 
 def load_msft(parameters):

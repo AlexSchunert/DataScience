@@ -1,23 +1,59 @@
 import pandas as pd
 import numpy as np
 from gp_main import gp_process
+from gp_lib import GPPosterior
 from scipy.optimize import curve_fit
 from astropy.timeseries import LombScargle
 
+
+def compute_gp_kernel_posterior(data,
+                                data_label_y):
+    """
+    Computes acf and fits gp. Additionally, estimates std of data noise. This i
+
+    :param data: DataFrame containing columns with labels data_label_y and "dt"
+    :type data: pd.DataFrame
+    :param data_label_y: String label of y-axis data
+    :type data_label_y: str
+
+    :return: Tuple of GPPosterior and estimated noise std
+    :rtype: (GPPosterior, float)
+    """
+
+    signal = data[data_label_y].values
+    # Get signals and time
+    t = data["dt"].values
+
+    lag_acf, auto_cov = compute_acf(t, signal)
+    auto_corr = auto_cov / auto_cov[0]
+    gp_result, gp_posterior = fit_acf(lag_acf, auto_corr)
+
+    # Estimate noise std
+    # Since m_i = s_i + n_i => E[m_i*m_(i+k)]=E[s_i*s_(i+k)]+E[s_i*n_(i+k)]+E[s_(i+k)*n_i]E[n_i*n_(i+k)]
+    # For k=0 => E[m_i*m_i]=E[s_i*s_i]+E[n_i*n_i]=sigma_s^2+sigma_n^2
+    # E[m_i*m_i]
+    var_m = signal.var()
+    # variance due to signal E[s_i*s_i]
+    var_s = gp_result.loc[gp_result["dt"] == 0, "acf"].values[0] * var_m
+    # variance due to noise
+    var_n = var_m - var_s
+    std_n = np.sqrt(var_n)
+
+    return gp_posterior, std_n
 
 def compute_acf(time, signal, max_lag=None):
     """
     Computes acf of signal. Irregular sampling and missing data is handled using time vector
 
     :param time: The timestamps of the signal values
-    :type time: ndarray
+    :type time: np.ndarray
     :param signal: The signal values for which acf is calculated
-    :type signal: ndarray
+    :type signal: np.ndarray
     :param max_lag: Max lag in days
     :type max_lag: float
 
     :return: Tuple of lag and autocovariance
-    :rtype: tuple(ndarray,ndarray)
+    :rtype: tuple(np.ndarray,np.ndarray)
     """
     if max_lag is None:
         max_lag = time.max() - time.min()
@@ -39,12 +75,12 @@ def fit_acf(dt, correlation):
     Fit functions to acf to determine hyperparameters of kernel functions
 
     :param dt: The lag (=> x)
-    :type dt: ndarray
+    :type dt: np.ndarray
     :param correlation: The autocorrelation (=> y)
-    :type correlation: ndarray
+    :type correlation: np.ndarray
 
-    :return: Tuple of (Array of optimized function parameters, Function values for dt)
-    :rtype: (ndarray,ndarray)
+    :return: Tuple of (GPResult, GPPosterior)
+    :rtype: (pd.DataFrame,GPPosterior)
     """
     target_quantity_idx = "acf"
     result_label = "acf"
@@ -60,8 +96,8 @@ def fit_acf(dt, correlation):
                                          target_quantity_idx,
                                          result_label,
                                          sigma_measurement,
-                                         rbf_length_scale,
-                                         rbf_output_scale)
+                                         rbf_length_scale=rbf_length_scale,
+                                         rbf_output_scale=rbf_output_scale)
 
     # Exponential
     # acf_model = lambda x, x0, l: np_exp(-abs(x-x0) / l)

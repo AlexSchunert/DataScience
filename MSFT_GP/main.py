@@ -262,6 +262,112 @@ def fit_acf_function_subsets(return_mode="standard"):
                  title="",
                  nlag_acf=data_hcorr_subs2["dt"].shape[0]-1)
 
+def fit_gpr_gpkernel_subsets(return_mode="standard"):
+    """
+    For subsets, determine acf, fit acf with gp, use acf-gp as kernel function in gpr to fit timeseries
+
+    :param return_mode: "If "standard", the signed returns are used. If "abs" absolute values of returns are used"
+    :type return_mode: str
+
+    :return: ---
+    :rtype: None
+    """
+    params_lcorr_subs1 = Parameters(start_date="1993-01-01",
+                                    end_date="1995-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode,
+                                    kernel_fct="gp_kernel",
+                                    test_data_size=0.1)
+
+    params_lcorr_subs2 = Parameters(start_date="2011-01-01",
+                                    end_date="2012-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode,
+                                    kernel_fct="gp_kernel",
+                                    test_data_size=0.1)
+
+    params_hcorr_subs1 = Parameters(start_date="2000-01-01",
+                                    end_date="2003-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode,
+                                    kernel_fct="gp_kernel",
+                                    test_data_size=0.1)
+
+    params_hcorr_subs2 = Parameters(start_date="2008-01-01",
+                                    end_date="2009-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode,
+                                    kernel_fct="gp_kernel",
+                                    test_data_size=0.1)
+
+    # Parameters
+
+    # Load dataset
+    raw_data = load_msft(params_lcorr_subs1)
+    params_lcorr_subs2.target_label = params_lcorr_subs1.target_label
+    params_hcorr_subs1.target_label = params_lcorr_subs1.target_label
+    params_hcorr_subs2.target_label = params_lcorr_subs1.target_label
+
+    data_lcorr_subs1 = select_data_time(raw_data, params_lcorr_subs1.start_date, params_lcorr_subs1.end_date)
+    data_lcorr_subs2 = select_data_time(raw_data, params_lcorr_subs2.start_date, params_lcorr_subs2.end_date)
+    data_hcorr_subs1 = select_data_time(raw_data, params_hcorr_subs1.start_date, params_hcorr_subs1.end_date)
+    data_hcorr_subs2 = select_data_time(raw_data, params_hcorr_subs2.start_date, params_hcorr_subs2.end_date)
+
+    plot_acf_fit(data_lcorr_subs1,
+                 params_lcorr_subs1.target_label,
+                 title="",
+                 nlag_acf=data_lcorr_subs1["dt"].shape[0]-1)
+
+    fit_gp(data_lcorr_subs1,
+           params_lcorr_subs1,
+           prediction_horizon_mode="day",
+           subsample_timeframe=True,
+           prediction_mode="all")
+
+    plot_acf_fit(data_lcorr_subs2,
+                 params_lcorr_subs2.target_label,
+                 title="",
+                 nlag_acf=data_lcorr_subs2["dt"].shape[0]-1)
+
+    fit_gp(data_lcorr_subs2,
+           params_lcorr_subs2,
+           prediction_horizon_mode="day",
+           subsample_timeframe=True,
+           prediction_mode="all")
+
+    plot_acf_fit(data_hcorr_subs1,
+                 params_hcorr_subs1.target_label,
+                 title="",
+                 nlag_acf=data_hcorr_subs1["dt"].shape[0]-1)
+
+    fit_gp(data_hcorr_subs1,
+           params_hcorr_subs1,
+           prediction_horizon_mode="day",
+           subsample_timeframe=True,
+           prediction_mode="all")
+
+    plot_acf_fit(data_hcorr_subs2,
+                 params_hcorr_subs2.target_label,
+                 title="",
+                 nlag_acf=data_hcorr_subs2["dt"].shape[0]-1)
+
+    fit_gp(data_hcorr_subs2,
+           params_hcorr_subs2,
+           prediction_horizon_mode="day",
+           subsample_timeframe=True,
+           prediction_mode="all")
 
 def make_arg_parser():
     """
@@ -314,5 +420,6 @@ def main():
 
 
 if __name__ == '__main__':
-    fit_acf_function_subsets(return_mode="abs")
+    fit_gpr_gpkernel_subsets(return_mode="abs")
+    #fit_acf_function_subsets(return_mode="abs")
     #main()

@@ -7,7 +7,7 @@ from utils import train_test_split, construct_prediction_result, compute_return,
     select_data_time, Parameters
 from plot_tools import plot_prediction_result, plot_prediction_error_statistic
 from gp_main import gp_process
-
+from acf_tools import compute_gp_kernel_posterior
 
 def fit_gp(data,
            parameters,
@@ -111,13 +111,28 @@ def fit_gp(data,
     else:
         return
 
-    result, _ = gp_process(data_timeframe_test,
-                           data_timeframe_train,
-                           parameters.target_label,
-                           result_label,
-                           parameters.sigma_used,
-                           parameters.rbf_length_scale,
-                           parameters.rbf_output_scale)
+    if parameters.kernel_fct == "rbf":
+        result, _ = gp_process(data_timeframe_test,
+                               data_timeframe_train,
+                               parameters.target_label,
+                               result_label,
+                               parameters.sigma_used,
+                               rbf_length_scale=parameters.rbf_length_scale,
+                               rbf_output_scale=parameters.rbf_output_scale,
+                               kernel_fct=parameters.kernel_fct)
+    elif parameters.kernel_fct == "gp_kernel":
+
+        gp_posterior, sigma_measurement = compute_gp_kernel_posterior(data_timeframe_train, parameters.target_label)
+        result, _ = gp_process(data_timeframe_test,
+                               data_timeframe_train,
+                               parameters.target_label,
+                               result_label,
+                               sigma_measurement,
+                               gp_posterior=gp_posterior,
+                               kernel_fct=parameters.kernel_fct)
+    else:
+        print("Unknown kernel_fct. Abort")
+        return
 
     if plot_results:
         plot_prediction_result(data_timeframe_train,

@@ -246,7 +246,7 @@ def plot_acf_fit(data,
     """
     Calculate acf of data, fit a function, and plot the result
 
-    :param data: DataFrame containing columns with labels data_label_y and data_label_x
+    :param data: DataFrame containing columns with labels data_label_y and "dt"
     :type data: pd.DataFrame
     :param data_label_y: String label of y-axis data
     :type data_label_y: str
