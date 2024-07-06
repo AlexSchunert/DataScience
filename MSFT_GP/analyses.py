@@ -3,10 +3,10 @@ from random import randint
 import pandas as pd
 from datetime import datetime, timedelta
 
-from utils import train_test_split, compute_kernel_matrices, construct_prediction_result, compute_return, \
+from utils import train_test_split, construct_prediction_result, compute_return, \
     select_data_time, Parameters
 from plot_tools import plot_prediction_result, plot_prediction_error_statistic
-from gaussian_process import gp_process
+from gp_main import gp_process
 
 
 def fit_gp(data,
@@ -101,23 +101,23 @@ def fit_gp(data,
         # Select and concatenate with data_timeframe_test
         start_date_prediction = (datetime.strptime(parameters.end_date, "%Y-%m-%d") + timedelta(1)).strftime("%Y-%m-%d")
         end_date_prediction = (
-                    datetime.strptime(parameters.end_date, "%Y-%m-%d") + timedelta(prediction_horizon)).strftime(
+                datetime.strptime(parameters.end_date, "%Y-%m-%d") + timedelta(prediction_horizon)).strftime(
             "%Y-%m-%d")
         data_timeframe_predict = select_data_time(data, start_date_prediction, end_date_prediction)
 
     if data_timeframe_test.empty is False or data_timeframe_predict.empty is False:
-        data_timeframe_test = pd.concat([df for df in [data_timeframe_test, data_timeframe_predict] if not df.empty]).\
+        data_timeframe_test = pd.concat([df for df in [data_timeframe_test, data_timeframe_predict] if not df.empty]). \
             sort_index()
     else:
         return
 
-    result = gp_process(data_timeframe_test,
-                        data_timeframe_train,
-                        parameters.target_label,
-                        result_label,
-                        parameters.sigma_used,
-                        parameters.rbf_length_scale,
-                        parameters.rbf_output_scale)
+    result, _ = gp_process(data_timeframe_test,
+                           data_timeframe_train,
+                           parameters.target_label,
+                           result_label,
+                           parameters.sigma_used,
+                           parameters.rbf_length_scale,
+                           parameters.rbf_output_scale)
 
     if plot_results:
         plot_prediction_result(data_timeframe_train,
@@ -173,7 +173,7 @@ def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
         # Select data from randomly selected timeframe
         idx_end = randint(min_idx_end, max_idx_end)
         # Determine start and end date
-        start_date = raw_data.loc[idx_end-parameters.num_data_points_gp_fit + 1]["Date"]
+        start_date = raw_data.loc[idx_end - parameters.num_data_points_gp_fit + 1]["Date"]
         end_date = raw_data.loc[idx_end]["Date"]
 
         if plot_iterations:
@@ -195,13 +195,13 @@ def gp_prediction_vs_martingale(raw_data, parameters, plot_iterations=False):
         # calculate prediction and store
         if parameters.use_return:
             prediction_error[i] = result[result_label].values[-1] - \
-                                  raw_data[target_quantity_idx][idx_end+1]
-            martingale_error[i] = -raw_data[target_quantity_idx][idx_end+1]
+                                  raw_data[target_quantity_idx][idx_end + 1]
+            martingale_error[i] = -raw_data[target_quantity_idx][idx_end + 1]
         else:
             prediction_error[i] = result[result_label].values[-1] - \
-                                  raw_data[target_quantity_idx][idx_end+1]
+                                  raw_data[target_quantity_idx][idx_end + 1]
             martingale_error[i] = raw_data[target_quantity_idx][idx_end] - \
-                                  raw_data[target_quantity_idx][idx_end+1]
+                                  raw_data[target_quantity_idx][idx_end + 1]
 
     plot_prediction_error_statistic(prediction_error,
                                     reference_error=martingale_error,

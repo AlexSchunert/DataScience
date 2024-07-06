@@ -9,7 +9,7 @@ The textbook answer may be something like "A probability distribution over funct
 I won't go into any more detail as there is great source material available. Check out [1.](#references) and [3.](#references) in references.
 
 ## Implementation
-The gp implementation [gaussian_process.py](../gaussian_process.py) is homebrew. It is mostly based on [1.](#references) (lectures 9 and 12 if I remember correctly). The rest is currently pretty much plot-tools and data-plumbing using pandas. 
+The gp implementation [gaussian_process.py](../gp_main.py) is homebrew. It is mostly based on [1.](#references) (lectures 9 and 12 if I remember correctly). The rest is currently pretty much plot-tools and data-plumbing using pandas. 
 
 ## Usage
 In this folder:

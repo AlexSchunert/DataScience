@@ -6,7 +6,9 @@ from scipy.fft import fft, fftfreq
 from scipy.signal import windows, correlate, periodogram
 from statsmodels.tsa.stattools import acovf
 from astropy.timeseries import LombScargle
-from utils import autocorrelations_sliding_window
+from utils import autocorrelations_sliding_window, is_positive_semidefinite
+from acf_tools import fit_acf, compute_acf
+from kernel_functions import gp_kernel
 
 
 def plot_prediction_result(train_data,
@@ -234,4 +236,44 @@ def plot_sliding_window_autocorr(data,
     plt.xlabel("x")
     plt.ylabel("y")
     ax.set_zlabel("z")
+    plt.show()
+
+
+def plot_acf_fit(data,
+                 data_label_y,
+                 title="",
+                 nlag_acf=180):
+    """
+    Calculate acf of data, fit a function, and plot the result
+
+    :param data: DataFrame containing columns with labels data_label_y and data_label_x
+    :type data: pd.DataFrame
+    :param data_label_y: String label of y-axis data
+    :type data_label_y: str
+    :param title: Title of the plot
+    :type title: str
+    :param nlag_acf: Max lag for autocorrelation fct
+    :type nlag_acf: int
+
+    :return: ---
+    :rtype: None
+    """
+
+    signal = data[data_label_y].values  # 0.1 * randn(raw_data["Return"].values.shape[0])
+    # Get signals and time
+    t = data["dt"].values
+
+    # Autocovariance
+    lag_acf, auto_cov = compute_acf(t, signal)
+    auto_corr = auto_cov / auto_cov[0]
+    gp_result, gp_posterior = fit_acf(lag_acf, auto_corr)
+    #k_ab = gp_kernel(data, data.iloc[200:300], gp_posterior)
+    #k_ab = gp_kernel(data, data, gp_posterior)
+    #print(is_positive_semidefinite(k_ab))
+    plt.plot(lag_acf, auto_corr, 'b', label="ACF")
+    plt.plot(lag_acf, gp_result["acf"], 'r', label="GP")
+    plt.xlabel("dt")
+    plt.ylabel("Correlation")
+    plt.legend(loc='upper right')
+
     plt.show()

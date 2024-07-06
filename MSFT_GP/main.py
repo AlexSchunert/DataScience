@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from argparse import ArgumentParser
 from utils import load_msft, Parameters, select_data_time
 from analyses import fit_gp, gp_prediction_vs_martingale
-from plot_tools import plot_data, plot_sliding_window_autocorr
+from plot_tools import plot_data, plot_sliding_window_autocorr, plot_acf_fit
 
 
 def run_initial_example():
@@ -185,6 +185,84 @@ def plot_return_full_subs(return_mode="standard"):
               nlag_acf=360)
 
 
+def fit_acf_function_subsets(return_mode="standard"):
+    """
+    Compute acf, fit, and plot for subsets
+
+    :param return_mode: "If "standard", the signed returns are used. If "abs" absolute values of returns are used"
+    :type return_mode: str
+
+    :return: ---
+    :rtype: None
+    """
+    params_lcorr_subs1 = Parameters(start_date="1993-01-01",
+                                    end_date="1995-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode)
+
+    params_lcorr_subs2 = Parameters(start_date="2011-01-01",
+                                    end_date="2012-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode)
+
+    params_hcorr_subs1 = Parameters(start_date="2000-01-01",
+                                    end_date="2003-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode)
+
+    params_hcorr_subs2 = Parameters(start_date="2008-01-01",
+                                    end_date="2009-12-31",
+                                    tick_interval_x=1000,
+                                    use_return=True,
+                                    prediction_horizon=10,
+                                    target_label="Adj Close",
+                                    return_mode=return_mode)
+
+    # Parameters
+
+    # Load dataset
+    raw_data = load_msft(params_lcorr_subs1)
+    params_lcorr_subs2.target_label = params_lcorr_subs1.target_label
+    params_hcorr_subs1.target_label = params_lcorr_subs1.target_label
+    params_hcorr_subs2.target_label = params_lcorr_subs1.target_label
+
+    data_lcorr_subs1 = select_data_time(raw_data, params_lcorr_subs1.start_date, params_lcorr_subs1.end_date)
+    data_lcorr_subs2 = select_data_time(raw_data, params_lcorr_subs2.start_date, params_lcorr_subs2.end_date)
+    data_hcorr_subs1 = select_data_time(raw_data, params_hcorr_subs1.start_date, params_hcorr_subs1.end_date)
+    data_hcorr_subs2 = select_data_time(raw_data, params_hcorr_subs2.start_date, params_hcorr_subs2.end_date)
+
+    # Plot
+
+    plot_acf_fit(data_lcorr_subs1,
+                 params_lcorr_subs1.target_label,
+                 title="",
+                 nlag_acf=data_lcorr_subs1["dt"].shape[0]-1)
+
+    plot_acf_fit(data_lcorr_subs2,
+                 params_lcorr_subs2.target_label,
+                 title="",
+                 nlag_acf=data_lcorr_subs2["dt"].shape[0]-1)
+
+    plot_acf_fit(data_hcorr_subs1,
+                 params_hcorr_subs1.target_label,
+                 title="",
+                 nlag_acf=data_hcorr_subs1["dt"].shape[0]-1)
+
+    plot_acf_fit(data_hcorr_subs2,
+                 params_hcorr_subs2.target_label,
+                 title="",
+                 nlag_acf=data_hcorr_subs2["dt"].shape[0]-1)
+
+
 def make_arg_parser():
     """
     Create ArgumentParser object
@@ -195,7 +273,8 @@ def make_arg_parser():
 
     parser = ArgumentParser()
     parser.add_argument("--mode", type=str,
-                        help="Mode: init_example/plot_return_ts/plot_return_full/plot_return_full_subs", required=False)
+                        help="Mode: init_example/plot_return_ts/plot_return_full/plot_return_full_subs/plot_acf_subs",
+                        required=False)
     parser.add_argument("--return_mode", type=str,
                         help="If not set or set to standard, returns are used. If set to abs, abs returns are used")
     return parser
@@ -225,6 +304,8 @@ def main():
         plot_return_full(return_mode=return_mode)
     elif mode == "plot_return_full_subs":
         plot_return_full_subs(return_mode=return_mode)
+    elif mode == "plot_acf_subs":
+        fit_acf_function_subsets(return_mode=return_mode)
     else:
         print("Invalid mode")
 
@@ -233,4 +314,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    fit_acf_function_subsets(return_mode="abs")
+    #main()
