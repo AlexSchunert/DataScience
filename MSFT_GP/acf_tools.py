@@ -92,7 +92,7 @@ def fit_acf(dt, correlation):
         "acf": correlation
     })
     sigma_measurement = 0.05
-    rbf_length_scale = 180.0
+    rbf_length_scale = 45.0
     rbf_output_scale = 1.0
     gp_result, gp_posterior = gp_process(test_data,
                                          test_data,
