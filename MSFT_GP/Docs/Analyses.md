@@ -57,7 +57,8 @@ To generate the plot, run `python -m main --mode plot_return_full`
 Notes:
 
 * signal vs time is identical to Figure 2
-* Autocorrelation shows the autocorrelation function of the signal using the function acovf from statsmodels.tsa.stattools to handle missing data (no trading at the weekend).
+* Autocorrelation shows the autocorrelation function of the signal using the function acovf from statsmodels.tsa.stattools to handle missing data (no trading at the weekend). 
+  * *Note that I switched to a calculation using a Lomb-Scargle periodogram beginning with [Fit GP to absolute returns](#fit-gp-to-absolute-returns), which did not change the results.*
 * PSD is the power spectral density estimated using a Lomb-Scargle periodogram taken from astropy.timeseries (again to handle data gaps). The cut-off frequency is set according to the median sampling of the data. 
 * Histogram is simply the histogram of the returns.
 * We need to be a bit careful with the interpretation as acf- and psd- calculation require stationarity. 
@@ -148,8 +149,52 @@ Notes:
 * There seems to some temporal correlation in absolute values of returns
 * Degree of temporal correlation varies within the timeseries
 
-**Next:** 
-* Use GP to predict absolute returns
-* Estimate autocorrelation for given training data and use it to tune kernel hyperparameters
-* Kernel function?
+### Fit GP to absolute returns
+Solve two problems:
+1. Returns show no autocorrelation => Use absolute returns, which show at least some temporal correlation.
+2. Set hyperparameters of GP (kernel function+parameters, standard deviation of measurement noise)
 
+Solution to problem 2. is to represent the kernel function of the GP meant to fit the absolute returns (GP_M) by a gaussian process (GP_ACF):
+* Calculate autocovariance-function (acf) (see: [acf_tool.py](../acf_tools.py)/compute_acf)
+* Fit GP with rbf kernel to acf estimate (see: [acf_tool.py](../acf_tools.py)/fit_acf) => GP_ACF
+  * Kernel functions need to be positive-semi-definite. There is no guarantee that GP_ACF satisfies that. However, so far I got away with it.
+  * Instead of GP_m hyperparameters, GP_ACF-hyperparameters need to be set => Good, since GP_ACF parameters are easier to set. Here length-scale=45 days, output-scale=1, and $\sigma=0.05$ are used. The important parameter seems to be length-scale, which should not be too small. Otherwise noise may be identified as signal. 
+* Estimate standard deviation of measurement noise:
+  * Model measurement as signal + noise => $m_i=s_i+n_i$
+  * Variance: $\sigma_m^2 = \sigma_s^2 + \sigma_n^2$ 
+  * $\sigma_m^2$ - variance of data => Estimate from timeseries
+  * $\sigma_s^2$ - Use ACF at zero lag as estimate of signal variance => Assume underlying signal acf is somehow smooth
+  * $\sigma_n^2 = \sigma_m^2 + \sigma_s^2$ 
+
+
+ACF and GP_ACF estimates for the four timeframes used above (TFL, TFL2, TFH, TFH2)
+To generate the plot, run `python -m main --mode plot_acf_subs --return_mode abs`
+<p align="center">
+  <img src="resources/OneDayAbsReturns_ClosingAdj_PlotAcfSubs.png" alt="drawing" width="600"/> 
+  <br>
+  <em>Figure 7: ACF for subsets together with estimated GP_ACF</em>
+</p>
+
+Notes:
+* Aim was to capture the underlying covariance structure of the signal while smoothing out noise
+* Results look plausible => Fit GP_M
+
+GP_M estimate and analysis for the four timeframes used above (TFL, TFL2, TFH, TFH2)
+To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return_mode abs` (Note that for clarity, only the plot for TFH2 is shown here)
+<p align="center">
+  <img src="resources/OneDayAbsReturns_ClosingAdj_PlotGpAnalysisTFH2.png" alt="drawing" width="800"/> 
+  <br>
+  <em>Figure 7: Analysis of GP_M conditioned to TFH2</em>
+</p>
+
+Notes:
+* The idea is to check first how well the model explains the data => No prediction here. We save that for later. 
+* Top row shows GP_M together with training- and test-data.
+* Middle left shows the residuals.
+* Middle right shows the histogram of the residuals.
+* Bottom left and right shows ACF and GP_ACF (normalized to autocorrelation for plotting purposes) for the data and the residuals, respectively.
+* GP_M mean and covariance look plausible
+* Distribution of residuals: Probably not gaussian as it has a fat right tail and also seems to be skewed to the right. Original data seemed to be non-negative gaussian distributed => Might be worth investigating
+* ACF/GP_ACF: The ACF of the residuals shows only minimal temporal correlation => GP_M captures the contained signal successfully
+
+In order for the approach to be any useful, it needs to be able to predict the expected absolute return. 

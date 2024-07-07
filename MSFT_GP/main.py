@@ -246,6 +246,7 @@ def fit_acf_function_subsets(return_mode="standard"):
     data_hcorr_subs2 = select_data_time(raw_data, params_hcorr_subs2.start_date, params_hcorr_subs2.end_date)
 
     # Plot
+    plt.rcParams.update({'font.size': 12})
     fig = plt.figure(figsize=(12, 8))
     gs = fig.add_gridspec(2, 2)
     ax00 = fig.add_subplot(gs[0, 0])
@@ -342,28 +343,28 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=360)
+           prediction_horizon=0)
 
     fit_gp(raw_data,
            params_lcorr_subs2,
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=360)
+           prediction_horizon=0)
 
     fit_gp(raw_data,
            params_hcorr_subs1,
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=360)
+           prediction_horizon=0)
 
     fit_gp(raw_data,
            params_hcorr_subs2,
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=360)
+           prediction_horizon=0)
 
 def make_arg_parser():
     """

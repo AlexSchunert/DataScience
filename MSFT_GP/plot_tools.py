@@ -53,6 +53,7 @@ def plot_gp_analysis(train_data,
     :rtype: None
     """
     if complete:
+        plt.rcParams.update({'font.size': 12})
         # fig, axs = plt.subplots(3, 2)
         fig = plt.figure(figsize=(15, 10))
         gs = fig.add_gridspec(3, 2)
@@ -395,7 +396,7 @@ def plot_acf_fit(data,
     # print(is_positive_semidefinite(k_ab))
     if target_axis:
         target_axis.plot(lag_acf, auto_corr, 'b', label="ACF")
-        target_axis.plot(lag_acf, gp_result["acf"], 'r', label="GP")
+        target_axis.plot(lag_acf, gp_result["acf"], 'r', label="GP", linewidth=2)
         target_axis.set_xlabel("dt")
         target_axis.set_ylabel("Correlation")
         target_axis.legend(loc='upper right')
