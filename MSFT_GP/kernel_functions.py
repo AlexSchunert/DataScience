@@ -91,6 +91,9 @@ def gp_kernel(input_left, input_right, gp_posterior):
                                               k_zz,
                                               gp_posterior.predictive_cov)
 
+        # Set covariances for time differences that are not in the data to zero
+        #kernel_matrix_values[where(x_test["dt"] > gp_posterior.x_training["dt"].max())[0]] = 0
+
         # Construct kernel matrix from kernel_matrix_values and x_test
         idx_mat = create_index_matrix(abs_diff_mat, abs_diff_unique_vec)
         k_ab = squeeze(kernel_matrix_values[idx_mat])
