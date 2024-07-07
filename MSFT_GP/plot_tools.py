@@ -11,13 +11,114 @@ from acf_tools import fit_acf, compute_acf
 from kernel_functions import gp_kernel
 
 
+def plot_gp_analysis(train_data,
+                     test_data,
+                     result,
+                     target_quantity_idx,
+                     result_idx="prediction",
+                     plot_shading_mode="2-sigma",
+                     tick_interval_x=10,
+                     complete=True,
+                     plot_line_tr_data=False,
+                     plot_line_test_data=False):
+    """
+    Calls plot_prediction_result if complete is False. Otherwise, additionally plots residuals, histogram of residuals
+    and acf with gp fit for training data and test residuals.
+
+    :param train_data: DataFrame with data used for training. Must contain columns labeled "Date" and
+                       target_quantity_idx
+    :type train_data: pd.DataFrame
+    :param test_data: DataFrame with data used for testing/prediction. Must contain columns labeled "Date" and
+                      target_quantity_idx
+    :type test_data: pd.DataFrame
+    :param result: DataFrame with gp prediction results. Must contain columns labeled "Date" and result_idx
+    :type result: pd.DataFrame
+    :param target_quantity_idx: Label of target quantity used in gp prediction
+    :type target_quantity_idx: str
+    :param result_idx: Label of gp prediction result
+    :type result_idx: str
+    :param plot_shading_mode: Determines the region around gp mean function that is shaded. Currently only "2-sigma"
+                              is supported => 2-sigma interval around gp mean is shaded in gray.
+    :type plot_shading_mode: str
+    :param tick_interval_x: Tick on x-axis every tick_interval_x days
+    :type tick_interval_x: int
+    :param complete: If true, make extended plot, prediction result only if false
+    :type complete: bool
+    :param plot_line_tr_data: If true, plot training data as line
+    :type plot_line_tr_data: bool
+    :param plot_line_test_data: If true, plot test data as line
+    :type plot_line_test_data: bool
+
+    :return: ---
+    :rtype: None
+    """
+    if complete:
+        # fig, axs = plt.subplots(3, 2)
+        fig = plt.figure(figsize=(15, 10))
+        gs = fig.add_gridspec(3, 2)
+        ax1 = fig.add_subplot(gs[0, :])
+        # Second row: two subplots
+        ax2 = fig.add_subplot(gs[1, 0])
+        ax3 = fig.add_subplot(gs[1, 1])
+        # Third row: two subplots
+        ax4 = fig.add_subplot(gs[2, 0])
+        ax5 = fig.add_subplot(gs[2, 1])
+
+        plot_prediction_result(train_data,
+                               test_data,
+                               result,
+                               target_quantity_idx,
+                               result_idx=result_idx,
+                               plot_shading_mode=plot_shading_mode,
+                               tick_interval_x=tick_interval_x,
+                               plot_line_tr_data=plot_line_tr_data,
+                               plot_line_test_data=plot_line_test_data,
+                               target_axis=ax1)
+
+        plot_acf_fit(train_data, target_quantity_idx, target_axis=ax4)
+        # Compute residuals
+        test_data["residuals"] = test_data[target_quantity_idx].values - result[result_idx].values
+        # Plot residuals
+        ax2.plot(pd.to_datetime(test_data["Date"]), test_data["residuals"], 'b-', label="Residuals")
+        ax2.set_xlabel("Date")
+        ax2.set_ylabel("Residuals")
+        ax2.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
+        ax2.xaxis.set_major_locator(pltdates.DayLocator(interval=tick_interval_x))  # Major ticks every 10 days
+        ax2.xaxis.set_minor_locator(pltdates.DayLocator(interval=tick_interval_x))
+        ax2.legend()
+        # plot histogram of residuals
+        num_bins = round(test_data.shape[0] / 10.0)
+        ax3.hist(test_data["residuals"], bins=num_bins, color="blue", histtype="bar", alpha=1, rwidth=0.8, density=True,
+                 label="Histogram of Residuals")
+        ax3.set_xlabel("Residual")
+        ax3.set_ylabel("Frequency")
+        ax3.legend()
+        plot_acf_fit(test_data, "residuals", target_axis=ax5)
+        plt.tight_layout()
+        plt.show()
+
+    else:
+        plot_prediction_result(train_data,
+                               test_data,
+                               result,
+                               target_quantity_idx,
+                               result_idx=result_idx,
+                               plot_shading_mode=plot_shading_mode,
+                               tick_interval_x=tick_interval_x,
+                               plot_line_tr_data=plot_line_tr_data,
+                               plot_line_test_data=plot_line_test_data)
+
+
 def plot_prediction_result(train_data,
                            test_data,
                            result,
                            target_quantity_idx,
                            result_idx="prediction",
                            plot_shading_mode="2-sigma",
-                           tick_interval_x=10):
+                           tick_interval_x=10,
+                           target_axis=None,
+                           plot_line_tr_data=False,
+                           plot_line_test_data=False):
     """
     Plots the result of a gp prediction.
 
@@ -38,44 +139,63 @@ def plot_prediction_result(train_data,
     :type plot_shading_mode: str
     :param tick_interval_x: Tick on x-axis every tick_interval_x days
     :type tick_interval_x: int
+    :param target_axis: Optional axis. If not none, plot here
+    :type target_axis: plt.Axes
+    :param plot_line_tr_data: If true, plot training data as line
+    :type plot_line_tr_data: bool
+    :param plot_line_test_data: If true, plot test data as line
+    :type plot_line_test_data: bool
 
     :return: ---
     :rtype: None
     """
 
-    fig, ax = plt.subplots()
-    # Plot data
-    plt.plot(pd.to_datetime(test_data["Date"]), test_data[target_quantity_idx], 'b.', label="Test data")
-    plt.plot(pd.to_datetime(train_data["Date"]), train_data[target_quantity_idx], 'g*', label="Train data")
-    # Plot prediction
-    plt.plot(pd.to_datetime(result["Date"]), result[result_idx], 'g-', label="GP mean-fct.")
+    if target_axis:
+        ax = target_axis
+    else:
+        fig, ax = plt.subplots()
+
+    if plot_line_test_data:
+        ax.plot(pd.to_datetime(test_data["Date"]), test_data[target_quantity_idx], 'b-', label="Test data")
+    else:
+        ax.plot(pd.to_datetime(test_data["Date"]), test_data[target_quantity_idx], 'b.', label="Test data")
+
+    if plot_line_tr_data:
+        ax.plot(pd.to_datetime(train_data["Date"]), train_data[target_quantity_idx], 'g-', label="Train data")
+    else:
+        ax.plot(pd.to_datetime(train_data["Date"]), train_data[target_quantity_idx], 'g*', label="Train data")
+
+        # Plot data
+    ax.plot(pd.to_datetime(result["Date"]), result[result_idx], 'g-', label="GP mean-fct.")
     # Plot standard deviation
-    plt.plot(pd.to_datetime(result["Date"]), result[result_idx] + result["std"], 'r--')
-    plt.plot(pd.to_datetime(result["Date"]), result[result_idx] - result["std"], 'r--', label="1-sigma")
+    ax.plot(pd.to_datetime(result["Date"]), result[result_idx] + result["std"], 'r--')
+    ax.plot(pd.to_datetime(result["Date"]), result[result_idx] - result["std"], 'r--', label="1-sigma")
     if plot_shading_mode == "2-sigma":
         upper_bound = result[result_idx] + 2.0 * result["std"]
         lower_bound = result[result_idx] - 2.0 * result["std"]
-        plt.fill_between(pd.to_datetime(result["Date"]), lower_bound, upper_bound, where=(upper_bound >= lower_bound),
-                         interpolate=True,
-                         color='gray', alpha=0.5, label=plot_shading_mode)
+        ax.fill_between(pd.to_datetime(result["Date"]), lower_bound, upper_bound,
+                        where=(upper_bound >= lower_bound),
+                        interpolate=True,
+                        color='gray', alpha=0.5, label=plot_shading_mode)
     else:
         upper_bound = result[result_idx] + 2.0 * result["std"]
         lower_bound = result[result_idx] - 2.0 * result["std"]
-        plt.fill_between(pd.to_datetime(result["Date"]), lower_bound, upper_bound, where=(upper_bound >= lower_bound),
-                         interpolate=True,
-                         color='gray', alpha=0.5, label=plot_shading_mode)
+        ax.fill_between(pd.to_datetime(result["Date"]), lower_bound, upper_bound,
+                        where=(upper_bound >= lower_bound),
+                        interpolate=True,
+                        color='gray', alpha=0.5, label=plot_shading_mode)
 
-    plt.title("GP fit for quantity " + result_idx)
-    plt.xlabel("Date")
-    plt.ylabel(target_quantity_idx)
-    plt.legend(loc='upper left')
-
+    ax.set_xlabel("Date")
+    ax.set_ylabel(target_quantity_idx)
+    ax.legend()
+    # ax.legend(loc='upper right')
     # Set the date format on the x-axis
     ax.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
     ax.xaxis.set_major_locator(pltdates.DayLocator(interval=tick_interval_x))  # Major ticks every 10 days
     ax.xaxis.set_minor_locator(pltdates.DayLocator(interval=tick_interval_x))
-
-    plt.show()
+    if not target_axis:
+        plt.title("GP fit for quantity " + result_idx)
+        plt.show()
 
 
 def plot_prediction_error_statistic(prediction_error, reference_error=None, num_bins=50):
@@ -241,15 +361,18 @@ def plot_sliding_window_autocorr(data,
 
 def plot_acf_fit(data,
                  data_label_y,
-                 title="",
+                 target_axis=None,
+                 title=None,
                  nlag_acf=180):
     """
     Calculate acf of data, fit a function, and plot the result
 
-    :param data: DataFrame containing columns with labels data_label_y and data_label_x
+    :param data: DataFrame containing columns with labels data_label_y and "dt"
     :type data: pd.DataFrame
     :param data_label_y: String label of y-axis data
     :type data_label_y: str
+    :param target_axis: Optional axis. If not none, plot here
+    :type target_axis: plt.Axes
     :param title: Title of the plot
     :type title: str
     :param nlag_acf: Max lag for autocorrelation fct
@@ -267,13 +390,23 @@ def plot_acf_fit(data,
     lag_acf, auto_cov = compute_acf(t, signal)
     auto_corr = auto_cov / auto_cov[0]
     gp_result, gp_posterior = fit_acf(lag_acf, auto_corr)
-    #k_ab = gp_kernel(data, data.iloc[200:300], gp_posterior)
-    #k_ab = gp_kernel(data, data, gp_posterior)
-    #print(is_positive_semidefinite(k_ab))
-    plt.plot(lag_acf, auto_corr, 'b', label="ACF")
-    plt.plot(lag_acf, gp_result["acf"], 'r', label="GP")
-    plt.xlabel("dt")
-    plt.ylabel("Correlation")
-    plt.legend(loc='upper right')
-
-    plt.show()
+    # k_ab = gp_kernel(data, data.iloc[200:300], gp_posterior)
+    # k_ab = gp_kernel(data, data, gp_posterior)
+    # print(is_positive_semidefinite(k_ab))
+    if target_axis:
+        target_axis.plot(lag_acf, auto_corr, 'b', label="ACF")
+        target_axis.plot(lag_acf, gp_result["acf"], 'r', label="GP")
+        target_axis.set_xlabel("dt")
+        target_axis.set_ylabel("Correlation")
+        target_axis.legend(loc='upper right')
+        if title:
+            target_axis.set_title(title)
+    else:
+        plt.plot(lag_acf, auto_corr, 'b', label="ACF")
+        plt.plot(lag_acf, gp_result["acf"], 'r', label="GP")
+        plt.xlabel("dt")
+        plt.ylabel("Correlation")
+        plt.legend(loc='upper right')
+        if title:
+            plt.title(title)
+        plt.show()

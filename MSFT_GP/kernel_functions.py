@@ -98,7 +98,8 @@ def gp_kernel(input_left, input_right, gp_posterior):
     else:
         k_ab = None
 
-    return k_ab
+    # Transpose for some reason
+    return k_ab.T
 
 
 def compute_kernel_matrices(predict_data,
@@ -139,6 +140,13 @@ def compute_kernel_matrices(predict_data,
             k_xx = rbf_kernel(train_data, train_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
             k_zx = rbf_kernel(predict_data, train_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
             k_zz = rbf_kernel(predict_data, predict_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
+    elif kernel_type == "gp_kernel":
+        if gp_posterior is None:
+            return
+        else:
+            k_xx = gp_kernel(train_data, train_data, gp_posterior)
+            k_zx = gp_kernel(predict_data, train_data, gp_posterior)
+            k_zz = gp_kernel(predict_data, predict_data, gp_posterior)
     else:
         return
 

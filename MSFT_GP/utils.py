@@ -27,6 +27,9 @@ class Parameters:
     num_iter_error_stat: int
     num_data_points_gp_fit: int
     histogram_num_bins: int
+    kernel_fct: str
+    plot_line_tr_data: bool
+    plot_line_test_data: bool
 
     def __init__(self,
                  test_data_size=0.5,
@@ -45,21 +48,24 @@ class Parameters:
                  num_iter_error_stat=1000,
                  num_data_points_gp_fit=10,
                  histogram_num_bins=100,
-                 tick_interval_x=10):
+                 tick_interval_x=10,
+                 kernel_fct="rbf",
+                 plot_line_tr_data=False,
+                 plot_line_test_data=False):
         """
         Initialises the parameter dataclass
 
         :param test_data_size: Portion of test data in case subsampling of input time frame is enabled
         :type test_data_size: float
-        :param rbf_length_scale: Length scale of radial basis function
+        :param rbf_length_scale: Length scale of radial basis function. Not used if kernel_fct!="rbf"
         :type rbf_length_scale: float
-        :param rbf_output_scale: Output Scale of radial basis function
+        :param rbf_output_scale: Output Scale of radial basis function. Not used if kernel_fct!="rbf"
         :type rbf_output_scale: float
-        :param sigma_price: Standard deviation of price
+        :param sigma_price: Standard deviation of price. Not used if kernel_fct=="gp_kernel"
         :type sigma_price: float
-        :param sigma_return: Standard deviation of return
+        :param sigma_return: Standard deviation of return. Not used if kernel_fct=="gp_kernel"
         :type sigma_return: float
-        :param sigma_used: Either set to sigma_price or sigma_return depending on use_return
+        :param sigma_used: Either set to sigma_price or sigma_return depending on use_return. Not used if kernel_fct=="gp_kernel"
         :type sigma_used: float
         :param target_label: String label of target quantity.
         :type target_label: str
@@ -89,6 +95,12 @@ class Parameters:
         :type histogram_num_bins: int
         :param tick_interval_x: Tick on x-axis every tick_interval_x days
         :type tick_interval_x: int
+        :param kernel_fct: Type of kernel function to be used. Currently, either "rbf" or "gp_kernel"
+        :type kernel_fct: str
+        :param plot_line_tr_data: If true, plot training data as line in plot_prediction_result
+        :type plot_line_tr_data: bool
+        :param plot_line_test_data: If true, plot test data as line in plot_prediction_result
+        :type plot_line_test_data: bool
 
         :return: The created parameters dataclass
         :rtype: Parameters
@@ -110,6 +122,9 @@ class Parameters:
         self.num_data_points_gp_fit = num_data_points_gp_fit
         self.histogram_num_bins = histogram_num_bins
         self.tick_interval_x = tick_interval_x
+        self.kernel_fct = kernel_fct
+        self.plot_line_tr_data = plot_line_tr_data
+        self.plot_line_test_data = plot_line_test_data
 
 
 def load_msft(parameters):

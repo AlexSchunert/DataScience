@@ -11,8 +11,10 @@ def gp_process(test_data,
                target_quantity_idx,
                result_label,
                sigma_measurement,
-               rbf_length_scale,
-               rbf_output_scale):
+               rbf_length_scale=None,
+               rbf_output_scale=None,
+               gp_posterior=None,
+               kernel_fct="rbf"):
     """
     Executes:
         - Computation of kernel matrices
@@ -35,6 +37,11 @@ def gp_process(test_data,
     :type rbf_length_scale: float
     :param rbf_output_scale: Output Scale of radial basis function
     :type rbf_output_scale: float
+    :param gp_posterior: Instance of class GPPosterior. Contains representer weights and pred. Cov.
+    :type gp_posterior: GPPosterior
+    :param kernel_fct: Type of kernel function to be used. Currently, either "rbf" or "gp_kernel"
+    :type kernel_fct: str
+
 
     :return: DataFrame containing the columns: Date, dt, result_label, and std.
     :rtype: DataFrame
@@ -43,9 +50,10 @@ def gp_process(test_data,
     # Fit gp
     k_xx, k_zx, k_zz = compute_kernel_matrices(test_data,
                                                train_data,
-                                               "rbf",
+                                               kernel_fct,
                                                rbf_length_scale=rbf_length_scale,
-                                               rbf_output_scale=rbf_output_scale)
+                                               rbf_output_scale=rbf_output_scale,
+                                               gp_posterior=gp_posterior)
     # condition on data
     alpha, predictive_cov = condition_gpr(train_data, k_xx, target_quantity_idx, sigma_measurement)
     # predict for all data
@@ -54,8 +62,14 @@ def gp_process(test_data,
     result = construct_prediction_result(test_data, mu_predicted, std_prediction,
                                          result_label=result_label)
 
-    kernel_fct = ["rbf", rbf_length_scale, rbf_output_scale]
-    x_training = train_data.loc[:,["dt"]]
+    if kernel_fct == "rbf":
+        kernel_fct = ["rbf", rbf_length_scale, rbf_output_scale]
+    elif kernel_fct == "gp_kernel":
+        kernel_fct = ["gp_kernel", 0, 0]
+    else:
+        print("Warning: Could not set kernel function in gp_posterior")
+
+    x_training = train_data.loc[:, ["dt"]]
     gp_posterior = GPPosterior(alpha, predictive_cov, x_training, kernel_fct)
 
     return result, gp_posterior
