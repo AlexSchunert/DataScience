@@ -217,6 +217,7 @@ Notes:
   * For TFH the same behavior of the mean function is visible, but since the data remains almost constant, this result appears to be better. 
 * A comparison of the ACF plots of the residuals on Figure 9 and Figure 10 (the difference is that in Figure 10 also the future prediction influences the result) shows stronger "residual" temporal correlation if future data is considered => The model does a worse job on explaining future points than it does for the training data.
 * Probably the most problematic issue is that predictions over the next year are not really sensible given the low autocorrelation (even in TFH2) for longer prediction horizons. => A year is chosen to investigate the long-term behavior of the prediction and because a prediction for just a couple of days would be hard to see in the plots.
+* Variance of the prediction for future points does not grow as strongly as expected => Investigate
 
 **Bottom Line:**
 * Long term prediction does not seem to work
