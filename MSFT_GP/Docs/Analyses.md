@@ -172,7 +172,7 @@ To generate the plot, run `python -m main --mode plot_acf_subs --return_mode abs
 <p align="center">
   <img src="resources/OneDayAbsReturns_ClosingAdj_PlotAcfSubs.png" alt="drawing" width="600"/> 
   <br>
-  <em>Figure 7: ACF for subsets together with estimated GP_ACF</em>
+  <em>Figure 8: ACF for subsets together with estimated GP_ACF</em>
 </p>
 
 Notes:
@@ -184,7 +184,7 @@ To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return
 <p align="center">
   <img src="resources/OneDayAbsReturns_ClosingAdj_PlotGpAnalysisTFH2.png" alt="drawing" width="800"/> 
   <br>
-  <em>Figure 7: Analysis of GP_M conditioned to TFH2</em>
+  <em>Figure 9: Analysis of GP_M conditioned to TFH2</em>
 </p>
 
 Notes:
