@@ -188,7 +188,7 @@ To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return
 </p>
 
 Notes:
-* The idea is to check first how well the model explains the data => No prediction here. We save that for later. 
+* The idea is to check first how well the model explains the data => No prediction here. 
 * Top row shows GP_M together with training- and test-data.
 * Middle left shows the residuals.
 * Middle right shows the histogram of the residuals.
