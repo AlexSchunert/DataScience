@@ -343,28 +343,28 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=0)
+           prediction_horizon=365)
 
     fit_gp(raw_data,
            params_lcorr_subs2,
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=0)
+           prediction_horizon=365)
 
     fit_gp(raw_data,
            params_hcorr_subs1,
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=0)
+           prediction_horizon=365)
 
     fit_gp(raw_data,
            params_hcorr_subs2,
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=0)
+           prediction_horizon=365)
 
 def make_arg_parser():
     """

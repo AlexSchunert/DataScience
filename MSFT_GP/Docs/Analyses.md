@@ -167,7 +167,8 @@ Solution to problem 2. is to represent the kernel function of the GP meant to fi
   * $\sigma_n^2 = \sigma_m^2 + \sigma_s^2$ 
 
 
-ACF and GP_ACF estimates for the four timeframes used above (TFL, TFL2, TFH, TFH2)
+ACF and GP_ACF estimates for the four timeframes used above (TFL, TFL2, TFH, TFH2).
+
 To generate the plot, run `python -m main --mode plot_acf_subs --return_mode abs`
 <p align="center">
   <img src="resources/OneDayAbsReturns_ClosingAdj_PlotAcfSubs.png" alt="drawing" width="600"/> 
@@ -179,12 +180,15 @@ Notes:
 * Aim was to capture the underlying covariance structure of the signal while smoothing out noise
 * Results look plausible => Fit GP_M
 
-GP_M estimate and analysis for the four timeframes used above (TFL, TFL2, TFH, TFH2)
-To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return_mode abs` (Note that for clarity, only the plot for TFH2 is shown here)
+GP_M estimate and analysis for the four timeframes used above (TFL, TFL2, TFH, TFH2).
+
+To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return_mode abs` 
+* For clarity, only the plot for TFH2 is shown here => TFL and TFL1 are unsurprisingly not very interesting. TFH is similar to TFH2.
+* In order to switch of any prediction, set prediction_horizon to zeros in [main.py](../main.py)/fit_gpr_gpkernel_subsets=>Calls to fit_gp.
 <p align="center">
   <img src="resources/OneDayAbsReturns_ClosingAdj_PlotGpAnalysisTFH2.png" alt="drawing" width="800"/> 
   <br>
-  <em>Figure 9: Analysis of GP_M conditioned to TFH2</em>
+  <em>Figure 9: Analysis of GP_M conditioned to TFH2 without prediction</em>
 </p>
 
 Notes:
@@ -197,4 +201,23 @@ Notes:
 * Distribution of residuals: Probably not gaussian as it has a fat right tail and also seems to be skewed to the right. Original data seemed to be non-negative gaussian distributed => Might be worth investigating
 * ACF/GP_ACF: The ACF of the residuals shows only minimal temporal correlation => GP_M captures the contained signal successfully
 
-In order for the approach to be any useful, it needs to be able to predict the expected absolute return. 
+In order for the approach to be any useful, it needs to be able to predict the expected absolute return. GP_M prediction for the upcoming year for the four timeframes used above (TFL, TFL2, TFH, TFH2).
+
+To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return_mode abs` 
+* For clarity, only the plot for TFH2 is shown here => The other plots tell more or less the same story. The plot for TFH1 shows "better" results (More on that in the Notes). 
+* Set prediction_horizon to 365 in [main.py](../main.py)/fit_gpr_gpkernel_subsets=>Calls to fit_gp.
+<p align="center">
+  <img src="resources/OneDayAbsReturns_ClosingAdj_PlotGpAnalysisTFH2Pred.png" alt="drawing" width="800"/> 
+  <br>
+  <em>Figure 10: Analysis of GP_M conditioned to TFH2 with prediction</em>
+</p>
+
+Notes:
+* GP_M does not predict the slight uptrend visible in the expected returns, but seems to show a slight down-trend. That could be caused by the weak temporal correlation over longer periods of time leading to mean values closer to the prior mean function (zero-function here).
+  * For TFH the same behavior of the mean function is visible, but since the data remains almost constant, this result appears to be better. 
+* A comparison of the ACF plots of the residuals on Figure 9 and Figure 10 (the difference is that in Figure 10 also the future prediction influences the result) shows stronger "residual" temporal correlation if future data is considered => The model does a worse job on explaining future points than it does for the training data.
+* Probably the most problematic issue is that predictions over the next year are not really sensible given the low autocorrelation (even in TFH2) for longer prediction horizons. => A year is chosen to investigate the long-term behavior of the prediction and because a prediction for just a couple of days would be hard to see in the plots.
+
+**Bottom Line:**
+* Long term prediction does not seem to work
+* Short-term prediction (Couple of days to a week) may work better
