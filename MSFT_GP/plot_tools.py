@@ -11,7 +11,7 @@ from acf_tools import fit_acf, compute_acf
 from kernel_functions import gp_kernel
 
 
-def plot_gp_analyses(train_data,
+def plot_gp_analysis(train_data,
                      test_data,
                      result,
                      target_quantity_idx,
@@ -53,7 +53,17 @@ def plot_gp_analyses(train_data,
     :rtype: None
     """
     if complete:
-        fig, axs = plt.subplots(2, 2)
+        # fig, axs = plt.subplots(3, 2)
+        fig = plt.figure(figsize=(15, 10))
+        gs = fig.add_gridspec(3, 2)
+        ax1 = fig.add_subplot(gs[0, :])
+        # Second row: two subplots
+        ax2 = fig.add_subplot(gs[1, 0])
+        ax3 = fig.add_subplot(gs[1, 1])
+        # Third row: two subplots
+        ax4 = fig.add_subplot(gs[2, 0])
+        ax5 = fig.add_subplot(gs[2, 1])
+
         plot_prediction_result(train_data,
                                test_data,
                                result,
@@ -63,18 +73,28 @@ def plot_gp_analyses(train_data,
                                tick_interval_x=tick_interval_x,
                                plot_line_tr_data=plot_line_tr_data,
                                plot_line_test_data=plot_line_test_data,
-                               target_axis=axs[0, 0])
+                               target_axis=ax1)
 
-        plot_acf_fit(train_data, target_quantity_idx, target_axis=axs[0, 1])
+        plot_acf_fit(train_data, target_quantity_idx, target_axis=ax4)
         # Compute residuals
         test_data["residuals"] = test_data[target_quantity_idx].values - result[result_idx].values
-        axs[1, 0].plot(test_data["Date"], test_data["residuals"], 'b-')
-        axs[1, 0].set_xlabel("Date")
-        axs[1, 0].set_ylabel("Residuals")
-        axs[1, 0].xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
-        axs[1, 0].xaxis.set_major_locator(pltdates.DayLocator(interval=tick_interval_x))  # Major ticks every 10 days
-        axs[1, 0].xaxis.set_minor_locator(pltdates.DayLocator(interval=tick_interval_x))
-        plot_acf_fit(test_data, "residuals", target_axis=axs[1, 1])
+        # Plot residuals
+        ax2.plot(pd.to_datetime(test_data["Date"]), test_data["residuals"], 'b-', label="Residuals")
+        ax2.set_xlabel("Date")
+        ax2.set_ylabel("Residuals")
+        ax2.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
+        ax2.xaxis.set_major_locator(pltdates.DayLocator(interval=tick_interval_x))  # Major ticks every 10 days
+        ax2.xaxis.set_minor_locator(pltdates.DayLocator(interval=tick_interval_x))
+        ax2.legend()
+        # plot histogram of residuals
+        num_bins = round(test_data.shape[0] / 10.0)
+        ax3.hist(test_data["residuals"], bins=num_bins, color="blue", histtype="bar", alpha=1, rwidth=0.8, density=True,
+                 label="Histogram of Residuals")
+        ax3.set_xlabel("Residual")
+        ax3.set_ylabel("Frequency")
+        ax3.legend()
+        plot_acf_fit(test_data, "residuals", target_axis=ax5)
+        plt.tight_layout()
         plt.show()
 
     else:
@@ -167,7 +187,8 @@ def plot_prediction_result(train_data,
 
     ax.set_xlabel("Date")
     ax.set_ylabel(target_quantity_idx)
-    ax.legend(loc='upper left')
+    ax.legend()
+    #ax.legend(loc='upper right')
     # Set the date format on the x-axis
     ax.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
     ax.xaxis.set_major_locator(pltdates.DayLocator(interval=tick_interval_x))  # Major ticks every 10 days

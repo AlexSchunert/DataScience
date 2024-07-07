@@ -274,7 +274,7 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
     """
     params_lcorr_subs1 = Parameters(start_date="1993-01-01",
                                     end_date="1995-12-31",
-                                    tick_interval_x=1000,
+                                    tick_interval_x=180,
                                     use_return=True,
                                     prediction_horizon=10,
                                     target_label="Adj Close",
@@ -285,7 +285,7 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
 
     params_lcorr_subs2 = Parameters(start_date="2011-01-01",
                                     end_date="2012-12-31",
-                                    tick_interval_x=1000,
+                                    tick_interval_x=180,
                                     use_return=True,
                                     prediction_horizon=10,
                                     target_label="Adj Close",
@@ -296,7 +296,7 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
 
     params_hcorr_subs1 = Parameters(start_date="2000-01-01",
                                     end_date="2003-12-31",
-                                    tick_interval_x=1000,
+                                    tick_interval_x=360,
                                     use_return=True,
                                     prediction_horizon=10,
                                     target_label="Adj Close",
@@ -307,7 +307,7 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
 
     params_hcorr_subs2 = Parameters(start_date="2008-01-01",
                                     end_date="2009-12-31",
-                                    tick_interval_x=1000,
+                                    tick_interval_x=180,
                                     use_return=True,
                                     prediction_horizon=10,
                                     target_label="Adj Close",
