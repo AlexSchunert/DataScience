@@ -22,8 +22,8 @@ def plot_gp_analysis(train_data,
                      plot_line_tr_data=False,
                      plot_line_test_data=False):
     """
-    Calls plot_prediction_result if complete is False. Otherwise, additionally plots residuals and acf with gp fit for
-    data and residuals
+    Calls plot_prediction_result if complete is False. Otherwise, additionally plots residuals, histogram of residuals
+    and acf with gp fit for training data and test residuals.
 
     :param train_data: DataFrame with data used for training. Must contain columns labeled "Date" and
                        target_quantity_idx
@@ -42,7 +42,7 @@ def plot_gp_analysis(train_data,
     :type plot_shading_mode: str
     :param tick_interval_x: Tick on x-axis every tick_interval_x days
     :type tick_interval_x: int
-    :param complete: If true, residuals + acf timeseries and residuals
+    :param complete: If true, make extended plot, prediction result only if false
     :type complete: bool
     :param plot_line_tr_data: If true, plot training data as line
     :type plot_line_tr_data: bool
@@ -188,7 +188,7 @@ def plot_prediction_result(train_data,
     ax.set_xlabel("Date")
     ax.set_ylabel(target_quantity_idx)
     ax.legend()
-    #ax.legend(loc='upper right')
+    # ax.legend(loc='upper right')
     # Set the date format on the x-axis
     ax.xaxis.set_major_formatter(pltdates.DateFormatter('%Y-%m-%d'))
     ax.xaxis.set_major_locator(pltdates.DayLocator(interval=tick_interval_x))  # Major ticks every 10 days
@@ -362,7 +362,7 @@ def plot_sliding_window_autocorr(data,
 def plot_acf_fit(data,
                  data_label_y,
                  target_axis=None,
-                 title="",
+                 title=None,
                  nlag_acf=180):
     """
     Calculate acf of data, fit a function, and plot the result
@@ -399,11 +399,14 @@ def plot_acf_fit(data,
         target_axis.set_xlabel("dt")
         target_axis.set_ylabel("Correlation")
         target_axis.legend(loc='upper right')
+        if title:
+            target_axis.set_title(title)
     else:
         plt.plot(lag_acf, auto_corr, 'b', label="ACF")
         plt.plot(lag_acf, gp_result["acf"], 'r', label="GP")
         plt.xlabel("dt")
         plt.ylabel("Correlation")
         plt.legend(loc='upper right')
-
+        if title:
+            plt.title(title)
         plt.show()

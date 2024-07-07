@@ -25,7 +25,12 @@ def run_initial_example():
     # Load dataset
     raw_data = load_msft(parameters)
     # Fit GP and plot
-    fit_gp(raw_data, parameters, prediction_horizon_mode="day", subsample_timeframe=True, prediction_mode="all")
+    fit_gp(raw_data,
+           parameters,
+           prediction_horizon_mode="day",
+           subsample_timeframe=True,
+           prediction_mode="all",
+           complete=False)
 
 
 def plot_return_ts(return_mode="standard"):
@@ -241,26 +246,34 @@ def fit_acf_function_subsets(return_mode="standard"):
     data_hcorr_subs2 = select_data_time(raw_data, params_hcorr_subs2.start_date, params_hcorr_subs2.end_date)
 
     # Plot
+    fig = plt.figure(figsize=(12, 8))
+    gs = fig.add_gridspec(2, 2)
+    ax00 = fig.add_subplot(gs[0, 0])
+    ax01 = fig.add_subplot(gs[0, 1])
+    ax10 = fig.add_subplot(gs[1, 0])
+    ax11 = fig.add_subplot(gs[1, 1])
 
     plot_acf_fit(data_lcorr_subs1,
                  params_lcorr_subs1.target_label,
-                 title="",
-                 nlag_acf=data_lcorr_subs1["dt"].shape[0]-1)
+                 title="TFL",
+                 target_axis=ax00)
 
     plot_acf_fit(data_lcorr_subs2,
                  params_lcorr_subs2.target_label,
-                 title="",
-                 nlag_acf=data_lcorr_subs2["dt"].shape[0]-1)
+                 title="TFL2",
+                 target_axis=ax01)
 
     plot_acf_fit(data_hcorr_subs1,
                  params_hcorr_subs1.target_label,
-                 title="",
-                 nlag_acf=data_hcorr_subs1["dt"].shape[0]-1)
+                 title="TFH",
+                 target_axis=ax10)
 
     plot_acf_fit(data_hcorr_subs2,
                  params_hcorr_subs2.target_label,
-                 title="",
-                 nlag_acf=data_hcorr_subs2["dt"].shape[0]-1)
+                 title="TFH2",
+                 target_axis=ax11)
+    plt.tight_layout()
+    plt.show()
 
 def fit_gpr_gpkernel_subsets(return_mode="standard"):
     """
@@ -324,34 +337,33 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
     params_hcorr_subs1.target_label = params_lcorr_subs1.target_label
     params_hcorr_subs2.target_label = params_lcorr_subs1.target_label
 
-    data_lcorr_subs1 = select_data_time(raw_data, params_lcorr_subs1.start_date, params_lcorr_subs1.end_date)
-    data_lcorr_subs2 = select_data_time(raw_data, params_lcorr_subs2.start_date, params_lcorr_subs2.end_date)
-    data_hcorr_subs1 = select_data_time(raw_data, params_hcorr_subs1.start_date, params_hcorr_subs1.end_date)
-    data_hcorr_subs2 = select_data_time(raw_data, params_hcorr_subs2.start_date, params_hcorr_subs2.end_date)
-
-    fit_gp(data_lcorr_subs1,
+    fit_gp(raw_data,
            params_lcorr_subs1,
            prediction_horizon_mode="day",
-           subsample_timeframe=True,
-           prediction_mode="all")
+           subsample_timeframe=False,
+           prediction_mode="all",
+           prediction_horizon=360)
 
-    fit_gp(data_lcorr_subs2,
+    fit_gp(raw_data,
            params_lcorr_subs2,
            prediction_horizon_mode="day",
-           subsample_timeframe=True,
-           prediction_mode="all")
+           subsample_timeframe=False,
+           prediction_mode="all",
+           prediction_horizon=360)
 
-    fit_gp(data_hcorr_subs1,
+    fit_gp(raw_data,
            params_hcorr_subs1,
            prediction_horizon_mode="day",
-           subsample_timeframe=True,
-           prediction_mode="all")
+           subsample_timeframe=False,
+           prediction_mode="all",
+           prediction_horizon=360)
 
-    fit_gp(data_hcorr_subs2,
+    fit_gp(raw_data,
            params_hcorr_subs2,
            prediction_horizon_mode="day",
-           subsample_timeframe=True,
-           prediction_mode="all")
+           subsample_timeframe=False,
+           prediction_mode="all",
+           prediction_horizon=360)
 
 def make_arg_parser():
     """
@@ -363,7 +375,7 @@ def make_arg_parser():
 
     parser = ArgumentParser()
     parser.add_argument("--mode", type=str,
-                        help="Mode: init_example/plot_return_ts/plot_return_full/plot_return_full_subs/plot_acf_subs",
+                        help="Mode: init_example/plot_return_ts/plot_return_full/plot_return_full_subs/plot_acf_subs/plot_gpr_gpkernel_subs",
                         required=False)
     parser.add_argument("--return_mode", type=str,
                         help="If not set or set to standard, returns are used. If set to abs, abs returns are used")
@@ -396,6 +408,8 @@ def main():
         plot_return_full_subs(return_mode=return_mode)
     elif mode == "plot_acf_subs":
         fit_acf_function_subsets(return_mode=return_mode)
+    elif mode == "plot_gpr_gpkernel_subs":
+        fit_gpr_gpkernel_subsets(return_mode=return_mode)
     else:
         print("Invalid mode")
 
@@ -404,6 +418,6 @@ def main():
 
 
 if __name__ == '__main__':
-    fit_gpr_gpkernel_subsets(return_mode="abs")
+    #fit_gpr_gpkernel_subsets(return_mode="abs")
     #fit_acf_function_subsets(return_mode="abs")
-    #main()
+    main()

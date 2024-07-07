@@ -18,7 +18,8 @@ def fit_gp(data,
            prediction_horizon=None,
            prediction_horizon_mode="days",
            prediction_mode="all",
-           plot_results=True):
+           plot_results=True,
+           complete=True):
     """
     General interface function to fit gp to timeseries
 
@@ -46,7 +47,9 @@ def fit_gp(data,
                             "predict_only" => prediction is done only for future points
     :type prediction_mode: str
     :param plot_results: If true, plot results
-    :type plot_results: bool
+    :type plot_results: bool,
+    :param complete: If true, make extended plot, prediction result only if false
+    :type complete: bool
 
     :return: DataFrame containing the columns: "Date", "dt", parameters.result_label, and "std". If prediction set
              is empty, None is returned.
@@ -144,7 +147,8 @@ def fit_gp(data,
                          plot_shading_mode=parameters.plot_shading_mode,
                          tick_interval_x=parameters.tick_interval_x,
                          plot_line_tr_data=parameters.plot_line_tr_data,
-                         plot_line_test_data=parameters.plot_line_test_data)
+                         plot_line_test_data=parameters.plot_line_test_data,
+                         complete=complete)
 
     return result
 
