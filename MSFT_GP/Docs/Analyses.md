@@ -212,7 +212,7 @@ To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return
 <p align="center">
   <img src="resources/OneDayAbsReturns_ClosingAdj_PlotGpAnalysisTFH2SubsampleTF.png" alt="drawing" width="800"/> 
   <br>
-  <em>Figure 10: Analysis of GP_M conditioned to TFH2 without prediction</em>
+  <em>Figure 10: Analysis of GP_M conditioned to TFH2 without prediction and a test-train-split of 50%.</em>
 </p>
 
 Notes:
