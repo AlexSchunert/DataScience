@@ -1,9 +1,9 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split as train_test_split_sklearn
 from dataclasses import dataclass
-from numpy import ndarray, zeros, abs
+from numpy import ndarray, zeros, abs, exp as np_exp, sin, empty, zeros_like, allclose, all
+from numpy.linalg import eigh
 from scipy.signal import correlate
-from kernel_functions import rbf_kernel
 
 
 @dataclass
@@ -27,6 +27,9 @@ class Parameters:
     num_iter_error_stat: int
     num_data_points_gp_fit: int
     histogram_num_bins: int
+    kernel_fct: str
+    plot_line_tr_data: bool
+    plot_line_test_data: bool
 
     def __init__(self,
                  test_data_size=0.5,
@@ -45,21 +48,24 @@ class Parameters:
                  num_iter_error_stat=1000,
                  num_data_points_gp_fit=10,
                  histogram_num_bins=100,
-                 tick_interval_x=10):
+                 tick_interval_x=10,
+                 kernel_fct="rbf",
+                 plot_line_tr_data=False,
+                 plot_line_test_data=False):
         """
         Initialises the parameter dataclass
 
         :param test_data_size: Portion of test data in case subsampling of input time frame is enabled
         :type test_data_size: float
-        :param rbf_length_scale: Length scale of radial basis function
+        :param rbf_length_scale: Length scale of radial basis function. Not used if kernel_fct!="rbf"
         :type rbf_length_scale: float
-        :param rbf_output_scale: Output Scale of radial basis function
+        :param rbf_output_scale: Output Scale of radial basis function. Not used if kernel_fct!="rbf"
         :type rbf_output_scale: float
-        :param sigma_price: Standard deviation of price
+        :param sigma_price: Standard deviation of price. Not used if kernel_fct=="gp_kernel"
         :type sigma_price: float
-        :param sigma_return: Standard deviation of return
+        :param sigma_return: Standard deviation of return. Not used if kernel_fct=="gp_kernel"
         :type sigma_return: float
-        :param sigma_used: Either set to sigma_price or sigma_return depending on use_return
+        :param sigma_used: Either set to sigma_price or sigma_return depending on use_return. Not used if kernel_fct=="gp_kernel"
         :type sigma_used: float
         :param target_label: String label of target quantity.
         :type target_label: str
@@ -89,6 +95,12 @@ class Parameters:
         :type histogram_num_bins: int
         :param tick_interval_x: Tick on x-axis every tick_interval_x days
         :type tick_interval_x: int
+        :param kernel_fct: Type of kernel function to be used. Currently, either "rbf" or "gp_kernel"
+        :type kernel_fct: str
+        :param plot_line_tr_data: If true, plot training data as line in plot_prediction_result
+        :type plot_line_tr_data: bool
+        :param plot_line_test_data: If true, plot test data as line in plot_prediction_result
+        :type plot_line_test_data: bool
 
         :return: The created parameters dataclass
         :rtype: Parameters
@@ -110,6 +122,9 @@ class Parameters:
         self.num_data_points_gp_fit = num_data_points_gp_fit
         self.histogram_num_bins = histogram_num_bins
         self.tick_interval_x = tick_interval_x
+        self.kernel_fct = kernel_fct
+        self.plot_line_tr_data = plot_line_tr_data
+        self.plot_line_test_data = plot_line_test_data
 
 
 def load_msft(parameters):
@@ -192,40 +207,6 @@ def train_test_split(data, test_data_size):
     return train_data, test_data
 
 
-def compute_kernel_matrices(predict_data, train_data, rbf_length_scale, rbf_output_scale, kernel_type="rbf"):
-    """
-    Computes all kernel matrices necessary for gp prediction:
-    - k_xx: Kernel matrix of training data
-    - k_zz: Kernel matrix of prediction data
-    - k_zx: Cross kernel matrix of prediction and training data
-
-    :param predict_data: Data used for prediction. Necessary for construction of k_zx and k_zz. Must contain
-                         column labeled "dt"
-    :type predict_data: pd.DataFrame
-    :param train_data: Data used for training. Necessary for construction of k_zx and k_xx. Must contain
-                       column labeled "dt"
-    :type train_data: pd.DataFrame
-    :param rbf_length_scale: Radial basis function length scale
-    :type rbf_length_scale: float
-    :param rbf_output_scale: Radial basis function output scale
-    :type rbf_output_scale: float
-    :param kernel_type: Indicates type of kernel function used. Currently only "rbf" is supported
-    :type kernel_type: str
-
-    :return: Tuple containing k_xx, k_zx, and k_zz
-    :rtype: (ndarray,ndarray,ndarray)
-    """
-
-    if kernel_type == "rbf":
-        k_xx = rbf_kernel(train_data, train_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
-        k_zx = rbf_kernel(predict_data, train_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
-        k_zz = rbf_kernel(predict_data, predict_data, length_scale=rbf_length_scale, output_scale=rbf_output_scale)
-    else:
-        return
-
-    return k_xx, k_zx, k_zz
-
-
 def construct_prediction_result(data, mu_predicted, std_predicted, result_label="prediction"):
     """
     Constructs result DataFrame from predicted gp mean and standard deviation.
@@ -244,12 +225,20 @@ def construct_prediction_result(data, mu_predicted, std_predicted, result_label=
     :rtype: pd.DateFrame
     """
     # Create result series
-    result = pd.DataFrame({
-        "Date": data["Date"].reset_index(drop=True),
-        "dt": data["dt"].reset_index(drop=True),
-        result_label: pd.Series(mu_predicted.reshape(-1)),
-        "std": pd.Series(std_predicted)
-    })
+    if "Date" in data.columns:
+        result = pd.DataFrame({
+            "Date": data["Date"].reset_index(drop=True),
+            "dt": data["dt"].reset_index(drop=True),
+            result_label: pd.Series(mu_predicted.reshape(-1)),
+            "std": pd.Series(std_predicted)
+        })
+    else:
+        result = pd.DataFrame({
+            "dt": data["dt"].reset_index(drop=True),
+            result_label: pd.Series(mu_predicted.reshape(-1)),
+            "std": pd.Series(std_predicted)
+        })
+
     return result
 
 
@@ -295,3 +284,57 @@ def autocorrelations_sliding_window(time_series, window_size):
         autocorrelations[i, :] = autocorr
 
     return autocorrelations
+
+
+def create_index_matrix(M, v):
+    """
+    Returns an index matrix Idx for a matrix M and a vector v such that v(I_ij)==M_ij. Note that v must contain all
+    elements in M exactly once
+    
+    :param M: Matrix M
+    :type M: ndarray
+    :param v: Vector v
+    :type v: ndarray
+
+    :return: Index matrix Idx
+    :rtype: ndarray
+    """
+
+    # Create a dictionary that maps each value in v to its index
+    value_to_index = {value: idx for idx, value in enumerate(v)}
+
+    # Initialize the index matrix I with the same shape as M
+    Idx = zeros_like(M, dtype=int)
+
+    # Fill the index matrix with the corresponding indices from v
+    for i in range(M.shape[0]):
+        for j in range(M.shape[1]):
+            Idx[i, j] = value_to_index[M[i, j]]
+
+    return Idx
+
+
+def is_positive_semidefinite(matrix):
+    """
+    Checks if input matrix is positive semi-definite
+
+    :param matrix: Matrix to be checked
+    :type matrix: ndarray
+
+    :return: True if matrix is positive-semi-definite, false otherwise
+    :rtype: bool
+    """
+    # Check if matrix is square
+    rows, cols = matrix.shape
+    if rows != cols:
+        return False
+
+    # Check if matrix is symmetric
+    if not allclose(matrix, matrix.T):
+        return False
+
+    # Compute eigenvalues
+    eigenvalues, _ = eigh(matrix)
+
+    # Check if all eigenvalues are non-negative
+    return all(eigenvalues >= 0)
