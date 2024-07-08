@@ -157,14 +157,14 @@ Solve two problems:
 Solution to problem 2. is to represent the kernel function of the GP meant to fit the absolute returns (GP_M) by a gaussian process (GP_ACF):
 * Calculate autocovariance-function (acf) (see: [acf_tool.py](../acf_tools.py)/compute_acf)
 * Fit GP with rbf kernel to acf estimate (see: [acf_tool.py](../acf_tools.py)/fit_acf) => GP_ACF
-  * Kernel functions need to be positive-semi-definite. There is no guarantee that GP_ACF satisfies that. However, so far I got away with it.
-  * Instead of GP_m hyperparameters, GP_ACF-hyperparameters need to be set => Good, since GP_ACF parameters are easier to set. Here length-scale=45 days, output-scale=1, and $\sigma=0.05$ are used. The important parameter seems to be length-scale, which should not be too small. Otherwise noise may be identified as signal. 
+  * Kernel functions need to be positive-semi-definite. There is no guarantee that GP_ACF satisfies that. However, it worked out for the processed examples.
+  * Instead of GP_m hyperparameters, GP_ACF-hyperparameters need to be set => GP_ACF parameters are easier to set! For the experiments in this section, length-scale=45 days, output-scale=1, and $\sigma=0.05$ are used. The important parameter is length-scale, which should not be too small. Otherwise noise may be identified as signal. 
 * Estimate standard deviation of measurement noise:
   * Model measurement as signal + noise => $m_i=s_i+n_i$
-  * Variance: $\sigma_m^2 = \sigma_s^2 + \sigma_n^2$ 
-  * $\sigma_m^2$ - variance of data => Estimate from timeseries
+  * Since signal and noise are independent, the variance of the measurement is given by $\sigma_m^2 = \sigma_s^2 + \sigma_n^2$ 
+  * $\sigma_m^2$ - variance of measurements => Estimate from timeseries
   * $\sigma_s^2$ - Use ACF at zero lag as estimate of signal variance => Assume underlying signal acf is somehow smooth
-  * $\sigma_n^2 = \sigma_m^2 + \sigma_s^2$ 
+  * $\sigma_n^2 = \sigma_m^2 - \sigma_s^2$ 
 
 
 ACF and GP_ACF estimates for the four timeframes used above (TFL, TFL2, TFH, TFH2).
@@ -178,13 +178,12 @@ To generate the plot, run `python -m main --mode plot_acf_subs --return_mode abs
 
 Notes:
 * Aim was to capture the underlying covariance structure of the signal while smoothing out noise
-* Results look plausible => Fit GP_M
+* Results look plausible
 
-GP_M estimate and analysis for the four timeframes used above (TFL, TFL2, TFH, TFH2).
+Next step is to fit the GP_M to the data of the four timeframes used above (TFL, TFL2, TFH, TFH2). For clarity, only the plot for TFH2 is presented here. TFL and TFL1 are unsurprisingly not very interesting, as there is hardly any temporal correlation to usw. The results for TFH mostly look like those obtained from TFH2. 
 
 To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return_mode abs` 
-* For clarity, only the plot for TFH2 is shown here => TFL and TFL1 are unsurprisingly not very interesting. TFH is similar to TFH2.
-* In order to switch of any prediction, set prediction_horizon to zeros in [main.py](../main.py)/fit_gpr_gpkernel_subsets=>Calls to fit_gp.
+* In order to switch of any prediction and subsampling of the timeframe, set prediction_horizon to zeros and subsample_timeframe to False in [main.py](../main.py)/fit_gpr_gpkernel_subsets=>Calls to fit_gp.
 <p align="center">
   <img src="resources/OneDayAbsReturns_ClosingAdj_PlotGpAnalysisTFH2.png" alt="drawing" width="800"/> 
   <br>
@@ -192,33 +191,61 @@ To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return
 </p>
 
 Notes:
-* The idea is to check first how well the model explains the data => No prediction here. 
-* Top row shows GP_M together with training- and test-data.
-* Middle left shows the residuals.
+* Use all data points in timeframe to fit GP_M and subsequently estimate GP_M mean and standard deviation for all data points. This is mostly a sanity check to see if the approach does anything useful.
+* Top row shows GP_M mean function and standard deviation together with training- and test-data.
+* Middle left shows the residuals of all predictions.
 * Middle right shows the histogram of the residuals.
 * Bottom left and right shows ACF and GP_ACF (normalized to autocorrelation for plotting purposes) for the data and the residuals, respectively.
-* GP_M mean and covariance look plausible
+* GP_M mean and covariance look plausible: 
+  * Mean function captures the timeframe of increased "volatility" from August 2008 to December 2008 successfully
+  * Mean function does not seem to overfit data
+  * Standard deviation is almost constant. This is expected as the sampling is very close to regular and all measurements are assumed to have equal standard deviation.
+  * Estimated standard deviation visually fits the distribution of the data.  
 * Distribution of residuals: Probably not gaussian as it has a fat right tail and also seems to be skewed to the right. Original data seemed to be non-negative gaussian distributed => Might be worth investigating
-* ACF/GP_ACF: The ACF of the residuals shows only minimal temporal correlation => GP_M captures the contained signal successfully
+* ACF/GP_ACF: The ACF of the residuals shows only minimal temporal correlation => GP_M captures the contained signal successfully. This is quite close to the desired result => Estimate the underlying signal, such that the residuals are temporally uncorrelated (i.e. white noise). 
 
-In order for the approach to be any useful, it needs to be able to predict the expected absolute return. GP_M prediction for the upcoming year for the four timeframes used above (TFL, TFL2, TFH, TFH2).
+Repeat the test using only 50% of the data in the timeframe for training and predict for all data points within the timeframe.
 
 To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return_mode abs` 
-* For clarity, only the plot for TFH2 is shown here => The other plots tell more or less the same story. The plot for TFH1 shows "better" results (More on that in the Notes). 
-* Set prediction_horizon to 365 in [main.py](../main.py)/fit_gpr_gpkernel_subsets=>Calls to fit_gp.
+* In order to switch of any prediction and enable subsampling of the timeframe, set prediction_horizon to zeros and subsample_timeframe to True in [main.py](../main.py)/fit_gpr_gpkernel_subsets=>Calls to fit_gp.
+
 <p align="center">
-  <img src="resources/OneDayAbsReturns_ClosingAdj_PlotGpAnalysisTFH2Pred.png" alt="drawing" width="800"/> 
+  <img src="resources/OneDayAbsReturns_ClosingAdj_PlotGpAnalysisTFH2SubsampleTF.png" alt="drawing" width="800"/> 
   <br>
-  <em>Figure 10: Analysis of GP_M conditioned to TFH2 with prediction</em>
+  <em>Figure 10: Analysis of GP_M conditioned to TFH2 without prediction</em>
 </p>
 
 Notes:
-* GP_M does not predict the slight uptrend visible in the expected returns, but seems to show a slight down-trend. That could be caused by the weak temporal correlation over longer periods of time leading to mean values closer to the prior mean function (zero-function here).
-  * For TFH the same behavior of the mean function is visible, but since the data remains almost constant, this result appears to be better. 
-* A comparison of the ACF plots of the residuals on Figure 9 and Figure 10 (the difference is that in Figure 10 also the future prediction influences the result) shows stronger "residual" temporal correlation if future data is considered => The model does a worse job on explaining future points than it does for the training data.
-* Probably the most problematic issue is that predictions over the next year are not really sensible given the low autocorrelation (even in TFH2) for longer prediction horizons. => A year is chosen to investigate the long-term behavior of the prediction and because a prediction for just a couple of days would be hard to see in the plots.
-* Variance of the prediction for future points does not grow as strongly as expected => Investigate
+* This test aims to investigate if the GP_M prediction generalizes to "unseen" data in an easy setting. Since there are usually training data closely before and after a test data point, lack of information from the data due to low correlation should not be an issue. 
+* For a description of the content of the subplots, see Figure 9. 
+* Only marginal differences to Figure 9. 
+* Due to the lower data density (removed every second training data point), the GP_M estimate of the standard deviation is larger.
+* The ACF/GP_ACF of the residuals indicates a slightly higher level of residual temporal correlation => Since the difference is very small, it is ignored for now.
+* Result shows that GP_M does generalize reasonably to "unseen" test data provided no extrapolation (i.e. prediction of future values) is done. 
+
+In order for the approach to be any useful, it needs to be able to predict the expected absolute return. Repeat the test using all of the training data in the timeframe and predict for the upcoming year. 
+
+To generate the plot, run `python -m main --mode plot_gpr_gpkernel_subs --return_mode abs` 
+* In order to predict a year into the future and disable subsampling of the timeframe, set prediction_horizon to 365 and subsample_timeframe to False in [main.py](../main.py)/fit_gpr_gpkernel_subsets=>Calls to fit_gp.
+
+<p align="center">
+  <img src="resources/OneDayAbsReturns_ClosingAdj_PlotGpAnalysisTFH2Pred.png" alt="drawing" width="800"/> 
+  <br>
+  <em>Figure 11: Analysis of GP_M conditioned to TFH2 with prediction</em>
+</p>
+
+Notes:
+* This test aims at investigating the long term behavior of the prediction. 
+* For a description of the content of the subplots, see Figure 9. 
+* GP_M does not predict the slight uptrend visible in the expected returns beginning in June 2010
+* GP_M mean and standard deviation approach prior values for large prediction horizons => After 6 months, the estimated values are practically identical to the prior. 
+* A comparison with the ACF plots of the residuals in Figure 9 (the difference is that in Figure 10 also the future prediction influences the result) shows stronger "residual" temporal correlation if future data is considered => The model does not work as good for future points. 
+* The main issue with predicting far into the future is that prediction points hardly get any information from the measured timeseries due to the relatively low temporal correlation and thus tend to the prior values.
 
 **Bottom Line:**
-* Long term prediction does not seem to work
-* Short-term prediction (Couple of days to a week) may work better
+* Excluding predictions, GP explains data fairly well (cf. Figures 9 and 10)
+* Long term prediction does not work due to relatively low temporal correlation (cf. Figure 11)
+
+**Next:**
+* Predict for shorter prediction horizons and evaluate results
+* One approach may be to randomly select short subsets (like 100-200 days) and predict a couple of days into the future and evaluate the results with respect to a simple estimator (mean value of selected timeframe or line fit using data immediately before prediction)
