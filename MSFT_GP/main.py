@@ -294,7 +294,7 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
                                     target_label="Adj Close",
                                     return_mode=return_mode,
                                     kernel_fct="gp_kernel",
-                                    test_data_size=0.1,
+                                    test_data_size=0.5,
                                     plot_line_tr_data=True)
 
     params_lcorr_subs2 = Parameters(start_date="2011-01-01",
@@ -305,7 +305,7 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
                                     target_label="Adj Close",
                                     return_mode=return_mode,
                                     kernel_fct="gp_kernel",
-                                    test_data_size=0.1,
+                                    test_data_size=0.5,
                                     plot_line_tr_data=True)
 
     params_hcorr_subs1 = Parameters(start_date="2000-01-01",
@@ -316,7 +316,7 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
                                     target_label="Adj Close",
                                     return_mode=return_mode,
                                     kernel_fct="gp_kernel",
-                                    test_data_size=0.1,
+                                    test_data_size=0.5,
                                     plot_line_tr_data=True)
 
     params_hcorr_subs2 = Parameters(start_date="2008-01-01",
@@ -327,7 +327,7 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
                                     target_label="Adj Close",
                                     return_mode=return_mode,
                                     kernel_fct="gp_kernel",
-                                    test_data_size=0.1,
+                                    test_data_size=0.5,
                                     plot_line_tr_data=True)
 
     # Parameters
@@ -343,28 +343,28 @@ def fit_gpr_gpkernel_subsets(return_mode="standard"):
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=365)
+           prediction_horizon=0)
 
     fit_gp(raw_data,
            params_lcorr_subs2,
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=365)
+           prediction_horizon=0)
 
     fit_gp(raw_data,
            params_hcorr_subs1,
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=365)
+           prediction_horizon=0)
 
     fit_gp(raw_data,
            params_hcorr_subs2,
            prediction_horizon_mode="day",
            subsample_timeframe=False,
            prediction_mode="all",
-           prediction_horizon=365)
+           prediction_horizon=0)
 
 def make_arg_parser():
     """
