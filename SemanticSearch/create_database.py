@@ -3,7 +3,8 @@ from langchain_community.document_loaders import PyPDFLoader, PyPDFDirectoryLoad
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.documents.base import Document
 from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
+#from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from os.path import exists
 from shutil import rmtree
 from yaml import safe_load as safe_load_yaml
@@ -36,7 +37,15 @@ def save_to_chroma(chunks: list[Document], chroma_path: str = "chroma") -> None:
     with open('config.yaml', 'r') as file:
         config = safe_load_yaml(file)
     api_key = config['openai_api_key']
-    embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+    #embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+    model_name = "sentence-transformers/all-MiniLM-L6-v2"
+    model_kwargs = {'device': 'cpu'}
+    encode_kwargs = {'normalize_embeddings': False}
+    embeddings = HuggingFaceEmbeddings(
+        model_name=model_name,
+        model_kwargs=model_kwargs,
+        encode_kwargs=encode_kwargs
+    )
 
     # Clear out the database first.
     if exists(chroma_path):
@@ -44,7 +53,7 @@ def save_to_chroma(chunks: list[Document], chroma_path: str = "chroma") -> None:
 
     # Create a new DB from the documents.
     db = Chroma.from_documents(
-        chunks, embeddings, persist_directory=chroma_path
+        chunks, embeddings, persist_directory=chroma_path, collection_name="example"
     )
     #db.persist()
     print(f"Saved {len(chunks)} chunks to {chroma_path}.")
