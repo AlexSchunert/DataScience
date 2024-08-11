@@ -10,3 +10,8 @@ venv/
 # Exclude file types
 */*.exe
 */*.pyc
+
+# Semantic Search
+SemanticSearch/chroma/
+SemanticSearch/config.yaml
+DataSets/*.pdf
