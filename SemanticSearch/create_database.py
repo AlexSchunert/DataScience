@@ -2,9 +2,9 @@ from typing import List
 from langchain_community.document_loaders import PyPDFLoader, PyPDFDirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.documents.base import Document
-from langchain_community.vectorstores import Chroma
-#from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma as ChromaVecStore
 from langchain_huggingface import HuggingFaceEmbeddings
+from chromadb import PersistentClient
 from os.path import exists
 from shutil import rmtree
 from yaml import safe_load as safe_load_yaml
@@ -30,14 +30,10 @@ def load_docs(doc_path: str, chunk_size: int = 1000, chunk_overlap: int = 500) -
     return chunks
 
 
-def save_to_chroma(chunks: list[Document], chroma_path: str = "chroma") -> None:
+def save_to_chroma(chunks: list[Document], chroma_path: str = "chroma", collection_name: str ="my_collection") -> None:
 
 
-
-    with open('config.yaml', 'r') as file:
-        config = safe_load_yaml(file)
-    api_key = config['openai_api_key']
-    #embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+    # Init embedding function
     model_name = "sentence-transformers/all-MiniLM-L6-v2"
     model_kwargs = {'device': 'cpu'}
     encode_kwargs = {'normalize_embeddings': False}
@@ -47,13 +43,14 @@ def save_to_chroma(chunks: list[Document], chroma_path: str = "chroma") -> None:
         encode_kwargs=encode_kwargs
     )
 
-    # Clear out the database first.
-    if exists(chroma_path):
-        rmtree(chroma_path)
+    # Create or load chromaDB
+    client = PersistentClient(path=chroma_path)
+    #collection = client.get_or_create_collection(name=collection_name)
 
-    # Create a new DB from the documents.
-    db = Chroma.from_documents(
-        chunks, embeddings, persist_directory=chroma_path, collection_name="example"
-    )
-    #db.persist()
+    vector_store = ChromaVecStore(client=client, embedding_function=embeddings, collection_name=collection_name)
+
+    # Add data
+    vector_store.add_documents(chunks)
+
+
     print(f"Saved {len(chunks)} chunks to {chroma_path}.")
