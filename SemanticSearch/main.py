@@ -1,7 +1,6 @@
 import fitz  # PyMuPDF
-from create_database import load_docs, save_to_chroma
-
-
+from vector_database import save_to_chroma
+from directory_parser import load_docs
 
 
 
