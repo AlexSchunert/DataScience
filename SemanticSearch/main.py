@@ -7,8 +7,8 @@ from vector_database import index_directory
 
 def main():
     doc_path = "../DataSets"
-    chunk_size = 100
-    chunk_overlap = 50
+    chunk_size = 300
+    chunk_overlap = 150
     chroma_path = "./chroma"
     collection_name = "my_collection"
 

@@ -1,3 +1,4 @@
+import numpy as np
 from langchain_community.document_loaders import PyPDFLoader, PyPDFDirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.documents.base import Document
@@ -16,8 +17,9 @@ def add_chunk_ids(chunks: List[Document]) -> List[Document]:
     for chunk in chunks:
         #unique_id = chunk.metadata["source"] + str(chunk.metadata["page"]) + str(chunk.metadata["start_index"])
         hash_obj = sha256()
-        hash_obj.update(chunk.page_content.encode())
+        #hash_obj.update((chunk.page_content+chunk.metadata["source"]).encode())
         #unique_id = hash_obj.hexdigest()
+        hash_obj.update(chunk.page_content.encode())
         chunk.id = hash_obj.hexdigest()
 
 
@@ -44,5 +46,9 @@ def parse_folder_to_doc(doc_path: str, chunk_size: int = 1000, chunk_overlap: in
     # Add IDs
     chunks = add_chunk_ids(chunks)
 
+    # Determine loaded files
+    files = np.unique([chunk.metadata["source"] for chunk in chunks])
+    for file in files:
+        print("Parsed file: "+file)
     print(f"Split {len(docs)} docs into {len(chunks)} chunks")
     return chunks
