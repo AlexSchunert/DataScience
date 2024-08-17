@@ -1,3 +1,4 @@
+import numpy as np
 from typing import List, Dict
 from langchain_core.documents.base import Document
 from langchain_community.vectorstores import Chroma as ChromaVecStore
@@ -48,17 +49,33 @@ def save_to_chroma(chunks: List[Document], chroma_path: str = "chroma", collecti
         encode_kwargs=encode_kwargs
     )
 
-    # Create or load chromaDB
+    ## Create or load chromaDB
     client = PersistentClient(path=chroma_path)
     # collection = client.get_or_create_collection(name=collection_name)
     vector_store = ChromaVecStore(client=client, embedding_function=embeddings, collection_name=collection_name)
 
-    # Add data
+    ## Add data
+    # Extract ids
     ids = [chunk.id for chunk in chunks]
+    # Remove duplicates using ids => sha256 indicates redundant text
+    unique_elements, indices, inverse_indices, counts = np.unique(ids,
+                                                                  return_index=True,
+                                                                  return_inverse=True,
+                                                                  return_counts=True)
 
+    num_chunks = len(chunks)
+    ids = unique_elements
+    chunks = [chunks[idx] for idx in indices]
+    num_chunks_unique = len(chunks)
+
+    # add documents
     num_elems_pre = client.get_collection(name=collection_name).count()
-    print(f"#Entries in {collection_name}: {num_elems_pre} before insert")
     vector_store.add_documents(chunks, ids=ids)
     num_elems_post = client.get_collection(name=collection_name).count()
+
+    # Report
+    print(f"#Chunks: {num_chunks}")
+    print(f"#Chunks unique: {num_chunks_unique}")
+    print(f"#Entries in {collection_name}: {num_elems_pre} before insert")
     print(f"#Entries in {collection_name}: {client.get_collection(name=collection_name).count()} after insert")
     print(f"Added {num_elems_post - num_elems_pre} elements")
