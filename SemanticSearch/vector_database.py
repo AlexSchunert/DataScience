@@ -7,6 +7,37 @@ from chromadb import PersistentClient
 from directory_parser import parse_folder_to_doc
 
 
+# def load_db():
+#    client = Client()
+
+def query_database(chroma_path: str = "./chroma",
+                   collection_name: str = "my_collection",
+                   query: str = "What is Meaning") -> None:
+    """
+    TBD
+
+    :param chroma_path: TBD
+    :param collection_name: TBD
+    :param query: TBD
+
+    :return: TBD
+    """
+    client = PersistentClient(path=chroma_path)
+    collection = client.get_collection(name=collection_name)
+    query_result = collection.query(query_texts=[query], n_results=5)
+
+    # print result
+    for idx, meta_data, doc, score in zip(list(range(len(query_result["metadatas"][0]))), query_result["metadatas"][0],
+                                          query_result["documents"][0], query_result["distances"][0]):
+        print("************************************************************************")
+        print("Query: " + query)
+        print("**************************************")
+        print("Answer: ", idx)
+        print(doc)
+        print("Score:" + str(score))
+        print("************************************************************************")
+
+
 def index_directory(doc_path: str,
                     chunk_size: int = 1000,
                     chunk_overlap: int = 500,
