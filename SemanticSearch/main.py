@@ -1,6 +1,6 @@
 import fitz  # PyMuPDF
-from vector_database import save_to_chroma
-from directory_parser import load_docs
+from vector_database import index_directory
+
 
 
 
@@ -9,14 +9,16 @@ def main():
     doc_path = "../DataSets"
     chunk_size = 100
     chunk_overlap = 50
+    chroma_path = "./chroma"
+    collection_name = "my_collection"
 
-    documents = load_docs(doc_path, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    save_to_chroma(documents, chroma_path="./chroma")
-    pass
-    # print(read_pfd("../DataSets/LectureNotesPhilScience.pdf"))
-    # load_docs(doc_path)
+    index_directory(doc_path,
+                    chunk_size=chunk_size,
+                    chunk_overlap=chunk_overlap,
+                    chroma_path=chroma_path,
+                    collection_name=collection_name)
+
 
 
 if __name__ == '__main__':
-
     main()
