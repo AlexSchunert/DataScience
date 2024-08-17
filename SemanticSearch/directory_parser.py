@@ -24,7 +24,7 @@ def add_chunk_ids(chunks: List[Document]) -> List[Document]:
     return chunks
 
 
-def load_docs(doc_path: str, chunk_size: int = 1000, chunk_overlap: int = 500) -> List[Document]:
+def parse_folder_to_doc(doc_path: str, chunk_size: int = 1000, chunk_overlap: int = 500) -> List[Document]:
     """
     Loads
 
