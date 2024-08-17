@@ -1,14 +1,20 @@
 import fitz  # PyMuPDF
-from vector_database import index_directory
+from vector_database import index_directory, query_database
 
 
+def query_db_main():
+    chroma_path = "./chroma"
+    collection_name = "my_collection"
+    query = "What is an explanation"
+    query_database(chroma_path,
+                   collection_name,
+                   query)
 
 
-
-def main():
+def index_dir_main():
     doc_path = "../DataSets"
-    chunk_size = 300
-    chunk_overlap = 150
+    chunk_size = 600
+    chunk_overlap = 300
     chroma_path = "./chroma"
     collection_name = "my_collection"
 
@@ -21,4 +27,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    #index_dir_main()
+    query_db_main()
