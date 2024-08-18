@@ -1,5 +1,5 @@
 from typing import Dict
-from transformers import pipeline
+from transformers import pipeline, AutoTokenizer
 from langchain.prompts import PromptTemplate
 
 
@@ -30,6 +30,17 @@ def create_prompt(query: str, db_query_result: Dict) -> str:
 
     return prompt
 
+def prompt_llm(prompt: str):
+    #tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
+
+    generator = pipeline('text-generation', model='sentence-transformers/all-MiniLM-L6-v2')
+    response_text = generator(prompt, max_length=2 * len(prompt), num_return_sequences=1)
+    print("************************************************************************")
+    print("Generated answer")
+    print(response_text[0]["generated_text"])
+    print("************************************************************************")
+
+
 def query_llm_rag(query: str, db_query_result: Dict) -> None:
     """
     TBD
@@ -41,7 +52,7 @@ def query_llm_rag(query: str, db_query_result: Dict) -> None:
     """
 
     prompt = create_prompt(query, db_query_result)
-    generator = pipeline('text-generation', model='distilgpt2')
-    response_text = generator(prompt, max_length=10000, num_return_sequences=1)
-    print(response_text)
+    prompt_llm(prompt)
+
     pass
+

@@ -18,18 +18,35 @@ def load_config(config_file: str = "config.yaml") -> Dict:
 
     return config
 
+def query_llm_rag_main():
+    config = load_config()
+    chroma_path = config["default_chroma_path"]
+    collection_name = config["default_collection_name"]
+    num_result_entries = config["num_result_entries_from_db"]
+    query = "How does Alice meet the Mad Hatter?"
+
+    db_query_result = query_database(query,
+                                     num_result_entries=num_result_entries,
+                                     chroma_path=chroma_path,
+                                     collection_name=collection_name)
+
+    query_llm_rag(query, db_query_result)
 
 def query_db_main():
     config = load_config()
     chroma_path = config["default_chroma_path"]
     collection_name = config["default_collection_name"]
-    query = "Summarize logical positivism"
+    num_result_entries = config["num_result_entries_from_db"]
+    query = "How does Alice meet the Mad Hatter?"
 
     db_query_result = query_database(query,
+                                     num_result_entries=num_result_entries,
                                      chroma_path=chroma_path,
                                      collection_name=collection_name)
 
-    query_llm_rag(query, db_query_result)
+    return db_query_result
+
+
 
 
 def index_dir_main():
@@ -50,5 +67,6 @@ def index_dir_main():
 
 
 if __name__ == '__main__':
-    # index_dir_main()
-    query_db_main()
+    #index_dir_main()
+    #query_db_main()
+    query_llm_rag_main()
