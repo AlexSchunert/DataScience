@@ -10,15 +10,15 @@ from directory_parser import parse_folder_to_doc
 # def load_db():
 #    client = Client()
 
-def query_database(chroma_path: str = "./chroma",
-                   collection_name: str = "my_collection",
-                   query: str = "What is Meaning") -> None:
+def query_database(query: str,
+                   chroma_path: str = "./chroma",
+                   collection_name: str = "my_collection") -> Dict:
     """
-    TBD
+    Query database for entries macthing the query
 
+    :param query: TBD
     :param chroma_path: TBD
     :param collection_name: TBD
-    :param query: TBD
 
     :return: TBD
     """
@@ -36,6 +36,7 @@ def query_database(chroma_path: str = "./chroma",
         print(doc)
         print("Score:" + str(score))
         print("************************************************************************")
+    return query_result
 
 
 def index_directory(doc_path: str,
@@ -77,7 +78,7 @@ def save_to_chroma(chunks: List[Document],
     """
 
     # Init embedding function
-    model_name = embedding_type #"sentence-transformers/all-MiniLM-L6-v2"
+    model_name = embedding_type  # "sentence-transformers/all-MiniLM-L6-v2"
     model_kwargs = {'device': 'cpu'}
     encode_kwargs = {'normalize_embeddings': False}
     embeddings = HuggingFaceEmbeddings(
