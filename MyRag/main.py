@@ -25,9 +25,11 @@ def query_db_main():
     collection_name = config["default_collection_name"]
     query = "What is science"
 
-    query_database(chroma_path,
-                   collection_name,
-                   query)
+    db_query_result = query_database(query,
+                                     chroma_path=chroma_path,
+                                     collection_name=collection_name)
+
+
 
 
 def index_dir_main():
@@ -35,10 +37,12 @@ def index_dir_main():
     doc_path = "../DataSets"
     chunk_size = config["default_chunk_size"]
     chunk_overlap = config["default_chunk_overlap"]
-    chroma_path =  config["default_chroma_path"]
+    chroma_path = config["default_chroma_path"]
     collection_name = config["default_collection_name"]
+    embedding_type = config["database_embedding"]
 
     index_directory(doc_path,
+                    embedding_type=embedding_type,
                     chunk_size=chunk_size,
                     chunk_overlap=chunk_overlap,
                     chroma_path=chroma_path,
@@ -46,5 +50,5 @@ def index_dir_main():
 
 
 if __name__ == '__main__':
-    #index_dir_main()
+    # index_dir_main()
     query_db_main()
