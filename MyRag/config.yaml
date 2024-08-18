@@ -1,0 +1,6 @@
+default_chroma_path: "./chroma"
+default_collection_name: "my_collection"
+default_chunk_size: 600
+default_chunk_overlap: 300
+database_embedding: "sentence-transformers/all-MiniLM-L6-v2"
+query_embedding: "sentence-transformers/all-MiniLM-L6-v2"
