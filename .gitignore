@@ -10,8 +10,9 @@ venv/
 # Exclude file types
 */*.exe
 */*.pyc
+*/*.bin
+*/*.sqlite3
 
 # Semantic Search
-SemanticSearch/chroma/
-SemanticSearch/config.yaml
+MyRag/chroma/
 DataSets/*.pdf
