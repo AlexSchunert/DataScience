@@ -11,12 +11,14 @@ from directory_parser import parse_folder_to_doc
 #    client = Client()
 
 def query_database(query: str,
+                   num_result_entries: int = 5,
                    chroma_path: str = "./chroma",
                    collection_name: str = "my_collection") -> Dict:
     """
     Query database for entries macthing the query
 
     :param query: TBD
+    :param num_result_entries: TBD
     :param chroma_path: TBD
     :param collection_name: TBD
 
@@ -24,7 +26,7 @@ def query_database(query: str,
     """
     client = PersistentClient(path=chroma_path)
     collection = client.get_collection(name=collection_name)
-    query_result = collection.query(query_texts=[query], n_results=5)
+    query_result = collection.query(query_texts=[query], n_results=num_result_entries)
 
     # print result
     for idx, meta_data, doc, score in zip(list(range(len(query_result["metadatas"][0]))), query_result["metadatas"][0],
