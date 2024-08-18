@@ -4,4 +4,6 @@ default_chunk_size: 300
 default_chunk_overlap: 150
 num_result_entries_from_db: 5
 database_embedding: "sentence-transformers/all-MiniLM-L6-v2"
-generator_llm: "distilgpt2"
+#generator_llm: "distilgpt2"
+#generator_llm: "EleutherAI/gpt-neo-125M"
+generator_llm: "GPT-4o mini"
