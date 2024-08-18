@@ -1,7 +1,7 @@
 from yaml import safe_load
 from typing import Dict
 from vector_database import index_directory, query_database
-
+from rag_llm_client import query_llm_rag
 
 def load_config(config_file: str = "config.yaml") -> Dict:
     """
@@ -23,13 +23,13 @@ def query_db_main():
     config = load_config()
     chroma_path = config["default_chroma_path"]
     collection_name = config["default_collection_name"]
-    query = "What is science"
+    query = "Summarize logical positivism"
 
     db_query_result = query_database(query,
                                      chroma_path=chroma_path,
                                      collection_name=collection_name)
 
-
+    query_llm_rag(query, db_query_result)
 
 
 def index_dir_main():
