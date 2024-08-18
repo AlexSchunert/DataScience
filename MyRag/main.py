@@ -23,6 +23,7 @@ def query_llm_rag_main():
     chroma_path = config["default_chroma_path"]
     collection_name = config["default_collection_name"]
     num_result_entries = config["num_result_entries_from_db"]
+    generator_llm = config["generator_llm"]
     query = "How does Alice meet the Mad Hatter?"
 
     db_query_result = query_database(query,
@@ -30,7 +31,7 @@ def query_llm_rag_main():
                                      chroma_path=chroma_path,
                                      collection_name=collection_name)
 
-    query_llm_rag(query, db_query_result)
+    query_llm_rag(query, db_query_result, generator_llm=generator_llm)
 
 def query_db_main():
     config = load_config()
