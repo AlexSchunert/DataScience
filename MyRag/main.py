@@ -5,7 +5,7 @@ from vector_database import index_directory, query_database
 def query_db_main():
     chroma_path = "./chroma"
     collection_name = "my_collection"
-    query = "What is an explanation"
+    query = "What is science"
     query_database(chroma_path,
                    collection_name,
                    query)
