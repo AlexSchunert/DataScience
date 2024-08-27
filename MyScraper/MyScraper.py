@@ -1,4 +1,5 @@
 import requests
+import numpy as np
 from bs4 import BeautifulSoup
 from bs4.element import ResultSet
 from urllib.robotparser import RobotFileParser
@@ -25,6 +26,7 @@ class MyScraper:
     robots_parser: RobotFileParser  # RobotFileParser object to handle robots.txt rules
     time_last_request: float  # TBD
     wait_time_min_s: float  # TBD
+    webpage_index: Dict  #
 
     def __init__(self, base_url: str, user_agent: str = '*', wait_time_min_s: float = 1.0) -> None:
 
@@ -44,9 +46,11 @@ class MyScraper:
         # Initialize timer for limiting requests and min waiting time
         self.time_last_request = time()
         self.wait_time_min_s = wait_time_min_s
-        pass
 
-    def extract_links(self):
+        # Initialize webpage_index
+        self.webpage_index = {self.base_url: False}
+
+    def extract_links_from_website(self) -> List[str]:
         links = []
         for a_tag in self.soup.find_all("a", href=True):
             href = a_tag["href"]
@@ -104,3 +108,30 @@ class MyScraper:
         Check if scraping the given URL is allowed according to robots.txt
         """
         return self.robots_parser.can_fetch(self.user_agent, url)
+
+    def traverse_website(self):
+
+        idx_first_unvisited = self.find_unvisited_webpage()
+        while idx_first_unvisited is not None:
+            current_url = list(self.webpage_index)[idx_first_unvisited]
+            self.fetch_webpage(current_url)
+            website_links = self.extract_links_from_website()
+
+            #for link in website_links:
+            #    if link not in self.webpage_index:
+            #        self.webpage_index[link] = False
+            self.webpage_index = {s: False for s in website_links} | self.webpage_index
+
+            self.webpage_index[current_url] = True
+            idx_first_unvisited = self.find_unvisited_webpage()
+            print(f"Finished Parsing {current_url}. Progress: {sum(list(self.webpage_index.values()))}/{len(self.webpage_index)}")
+
+    def find_unvisited_webpage(self) -> Optional[int]:
+
+        idx_first_unvisited = None
+        try:
+            idx_first_unvisited = list(self.webpage_index.values()).index(False)
+        except:
+            print("No unvisited webpage found -> Done")
+
+        return idx_first_unvisited
